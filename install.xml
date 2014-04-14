@@ -6,7 +6,7 @@
 	<header>
 		<meta name="generator" content="MODX file generated with PP MODX Creator by tumba25 (online version)"/>
 		<license><![CDATA[http://opensource.org/licenses/gpl-license.php GNU General Public License v2]]></license>
-		<title lang="en"><![CDATA[Cleantalk. Spam protect v.3.74]]></title>
+		<title lang="en"><![CDATA[Cleantalk. Spam protect v.3.75]]></title>
 		<description lang="en"><![CDATA[1. Stops spam bots signups.
 2. Stops spam bots posts.
 3. Allow guests posting on the forum without CAPTCHA.
@@ -28,7 +28,7 @@ MOD is a client application for spam protection service cleantalk.org. You shoul
 				<email><![CDATA[welcome@cleantalk.org]]></email>
 			</author>
 		</author-group>
-		<mod-version>3.74</mod-version>
+		<mod-version>3.75</mod-version>
 		<installation>
 			<level>easy</level>
 			<time>300</time>
@@ -400,13 +400,20 @@ MOD is a client application for spam protection service cleantalk.org. You shoul
 					<change><![CDATA[Fixid PHP code.]]></change>
 				</changelog>
 			</entry>
+			<entry>
+				<date>2014-04-14</date>
+				<rev-version>3.75</rev-version>
+				<changelog lang="en">
+					<change><![CDATA[Fixed bug at mcp_queue.php.]]></change>
+				</changelog>
+			</entry>
 		</history>
 		<link-group>
 			<link type="language" href="contrib/ru.xml" lang="en">Russian language</link>
 			<link type="language" href="contrib/de.xml" lang="en">Deutsche</link>
 			<link type="language" href="contrib/fr.xml" lang="en">French</link>
 			<link type="language" href="contrib/es.xml" lang="en">Spanish</link>
-			<link type="contrib" href="contrib/update_3.72_to_3.73.xml" lang="en">Update from 3.72</link>
+			<link type="contrib" href="contrib/update_3.74_to_3.75.xml" lang="en">Update from 3.74</link>
 		</link-group>
 	</header>
 	<action-group>
@@ -913,44 +920,61 @@ if (!$submit && !$preview && !$refresh)
 				WHERE ' . $db->sql_in_set('post_id', $post_approve_sql);
 			$db->sql_query($sql);
 ]]></find>
-				<action type="after-add"><![CDATA[            // Begin : cleantalk.ru moderation
-            if ($config['ct_enable'])
-            {
-                if (!class_exists('Cleantalk'))
-                {
-                    include($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
-                    include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
-                }
-                $ct					 = new Cleantalk();
-                $ct->work_url		 = $config['ct_work_url'];
-                $ct->server_url		 = $config['ct_server_url'];
-                $ct->server_ttl		 = $config['ct_server_ttl'];
-                $ct->server_changed	 = $config['ct_server_changed'];
+				<action type="after-add"><![CDATA[			// Begin: cleantalk.ru moderation
+			global $config;
 
-                foreach ($post_info as $post_id => $post_data)
-                {
-                    $ct_request		 = new CleantalkRequest();
-                    $ct_request_id	 = $ct->getCleantalkCommentHash($post_data['post_text']);
+			if (!class_exists('Cleantalk'))
+			{
+				require($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
+				require($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+			}
+			$ct					 = new Cleantalk();
+			$ct->work_url		 = $config['ct_work_url'];
+			$ct->server_url		 = $config['ct_server_url'];
+			$ct->server_ttl		 = $config['ct_server_ttl'];
+			$ct->server_changed	 = $config['ct_server_changed'];
 
-                    $ct_request->feedback = $ct_request_id . ':0';
-                    $ct_request->auth_key	 = $config['ct_auth_key'];
+			$ct_request				 = new CleantalkRequest();
+			$ct_feedback_moderate	 = null;
 
-                    $ct_result = $ct->sendFeedback($ct_request);
+			foreach ($post_info as $post_id => $post_data)
+			{
+				$ct_request_id = $ct->getCleantalkCommentHash($post_data['post_text']);
+				if (isset($ct_request_id))
+				{
+					$ct_feedback_moderate = $ct_request_id . ':1;';
 
-                    if ($ct->server_change)
-                    {
-                        set_config('ct_work_url', $ct->work_url);
-                        set_config('ct_server_ttl', $ct->server_ttl);
-                        set_config('ct_server_changed', time());
-                    }
+					$ct_post_text	 = $ct->delCleantalkComment($post_data['post_text']);
+					$ct_post_text	 = preg_replace("/\[color\=\#FF1000\:[a-z0-9]+\](\S+)\[\/color\:[a-z0-9]+\]/iu", '$1', $ct_post_text);
+					if ($ct_post_text != $post_data['post_text'])
+					{
+						$sql = 'UPDATE ' . POSTS_TABLE . "
+							SET post_text = '" . $db->sql_escape($ct_post_text) . "'
+							WHERE post_id = " . (int) $post_id;
+						$db->sql_query($sql);
+					}
+				}
+			}
+			if (isset($ct_feedback_moderate) && $config['ct_enable'])
+			{
+				$ct_request->feedback = $ct_feedback_moderate;
+				$ct_request->auth_key	 = $config['ct_auth_key'];
 
-                    if ($ct_result->errno > 0)
-                    {
-                        ct_error_mail($ct_result->errstr);
-                    }
-                }
-            }
-            // End: cleantalk.ru moderation
+				$ct_result = $ct->sendFeedback($ct_request);
+
+				if ($ct->server_change)
+				{
+					set_config('ct_work_url', $ct->work_url);
+					set_config('ct_server_ttl', $ct->server_ttl);
+					set_config('ct_server_changed', time());
+				}
+
+				if ($ct_result->errno > 0)
+				{
+					ct_error_mail($ct_result->errstr);
+				}
+			}
+			// End: cleantalk.ru moderation
 ]]></action>
 			</edit>
 			<edit>
