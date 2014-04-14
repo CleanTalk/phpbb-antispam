@@ -1,0 +1,674 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml-stylesheet type="text/xsl" href="modx.prosilver.en.xsl"?>
+<!--NOTICE: Please open this file in your web browser. If presented with a security warning, you may safely tell it to allow the blocked content.-->
+<!--For security purposes, please check: http://www.phpbb.com/mods/ for the latest version of this MOD.\nAlthough MODs are checked before being allowed in the MODs Database there is no guarantee that there are no security problems within the MOD.\nNo support will be given for MODs not found within the MODs Database which can be found at http://www.phpbb.com/mods/-->
+<mod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://www.phpbb.com/mods/xml/modx-1.2.6.xsd">
+	<header>
+		<meta name="generator" content="MODX file generated with PP MODX Creator by tumba25 (online version)"/>
+		<license><![CDATA[http://opensource.org/licenses/gpl-license.php GNU General Public License v2]]></license>
+		<title lang="en"><![CDATA[Cleantalk. Spam protect update from 3.72 to 3.73]]></title>
+		<description lang="en"><![CDATA[This MOD use several tests to stop spam bots at the board. For example,
+
+1. Blacklists checks by Email, IP in lists with several thousands records,
+2. JavaScript availability,
+3. Registration and post submit time,
+4. Timezone test by user IP.
+
+Guests and New users posts MOD tests for relevance. MOD compare with first post in topic and previous posts. If the relevance is good enough it will be automatically published at the topic. Not relevant post moves to moderation queue.
+
+All features ot the MOD:
+1. Stop spam bots registrations.
+2. Not using CAPTCHA.
+3. Allow guests posting on the forum without CAPTCHA.
+4. Auto publication relevant posts.
+
+MOD is a client application for spam protection service cleantalk.org. You should register at the service and get an Access key before using the MOD.]]></description>
+		<author-group>
+			<author>
+				<realname><![CDATA[Denis Shagimuratov]]></realname>
+				<username><![CDATA[shagimuratov]]></username>
+				<homepage><![CDATA[http://cleantalk.org]]></homepage>
+				<email><![CDATA[shagimuratov@cleantalk.org]]></email>
+			</author>
+		</author-group>
+		<mod-version>3.72</mod-version>
+		<installation>
+			<level>easy</level>
+			<time>300</time>
+			<target-version>3.0.12</target-version>
+		</installation>
+	</header>
+	<action-group>
+		<open src="memberlist.php">
+			<edit>
+				<remove><![CDATA[		// Begin: cleantalk.ru moderation
+		if ($auth->acl_get('a_user') && !empty($member['ct_phone_number'])) {
+			$user->add_lang('mods/info_acp_cleantalk');
+			$template->assign_block_vars('custom_fields', array(
+				'PROFILE_FIELD_VALUE'		=> $member['ct_phone_number'],
+				'PROFILE_FIELD_TYPE'	=> 2,
+				'PROFILE_FIELD_NAME'			=> $user->lang['CT_PHONE_NUMBER'],
+				'PROFILE_FIELD_EXPLAIN'		=> '',
+				'S_PROFILE_TEST'	=> 1
+			));
+		}
+		// END: cleantalk.ru moderation]]></remove>
+			</edit>
+		</open>
+		<open src="posting.php">
+			<edit>
+				<find><![CDATA[	// Begin: cleantalk.ru moderation
+	if ($config['ct_enable'] && ($mode == 'reply' || $mode == 'quote' || $mode == 'post') && !$preview && !sizeof($error))
+	{
+        $username    = utf8_normalize_nfc(request_var('username', ($user->data['is_registered']) ? $user->data['username'] : '', true));
+		
+        if (!class_exists('Cleantalk'))
+		{
+			require $phpbb_root_path . 'includes/cleantalk.' . $phpEx;
+			require $phpbb_root_path . 'includes/cleantalk.class.' . $phpEx;
+		}
+
+		$moderate		 = 0; // Flag to start moderation
+		$ct_admin		 = 0; // User is an admin
+		$ct_gmoderator	 = 0; // User is global moderator
+		//ct_moderate_guests, ct_moderate_newly_registered,
+		$sql		 = 'SELECT enable_stoplist_check, ct_moderate_registered FROM ' . FORUMS_TABLE . ' WHERE forum_id = ' . (int) $forum_id;
+		$result		 = $db->sql_query($sql);
+		$ct_forum	 = $db->sql_fetchrow($result);
+		$db->sql_freeresult($result);
+
+        $sql_where = array();
+        if($config['ct_moderate_guests'])
+        {
+            $sql_where[] = 'GUESTS';
+        }
+
+        if ($config['ct_moderate_newly_registered'])
+        {
+            $sql_where[] = 'NEWLY_REGISTERED';
+        }
+
+        if ($ct_forum['ct_moderate_registered'])
+        {
+            $sql_where[] = 'REGISTERED';
+        }
+
+        if (!empty($sql_where))
+        {
+            $sql = 'SELECT
+                    IF(EXISTS(
+                            SELECT g.group_name
+                            FROM ' . USER_GROUP_TABLE . ' ug
+                                JOIN ' . GROUPS_TABLE . ' g ON (ug.group_id = g.group_id)
+                            WHERE ug.user_id = ' . (int) $user->data['user_id'] . " AND g.group_name in ('GLOBAL_MODERATORS' , 'ADMINISTRATORS')),
+                        0,
+                        IF(EXISTS(
+                                SELECT g.group_name
+                                FROM " . USER_GROUP_TABLE . ' ug
+                                    JOIN ' . GROUPS_TABLE . ' g ON (ug.group_id = g.group_id)
+                                WHERE ug.user_id = ' . (int) $user->data['user_id'] . ' AND ' . $db->sql_in_set('g.group_name', $sql_where). '
+                            ),
+                            1,
+                            0)) AS moderate';
+            $result    = $db->sql_query($sql);
+            $moderate = $db->sql_fetchfield('moderate');
+            $db->sql_freeresult($result);
+        }
+        else
+        {
+            // empty array $sql_where --> nothing to moderate
+            $moderate = 0;
+        }
+
+		if ($moderate)
+		{
+
+			$ct_example	 = null; // Example text
+			$message	 = $message_parser->message; // Post message
+
+			if ($topic_id == 0)
+			{ // First post in topic
+                $sql    = 'SELECT p.post_text
+                                FROM ' . TOPICS_TABLE . ' t
+                                    JOIN ' . POSTS_TABLE . ' p ON (p.post_id = t.topic_first_post_id)
+                                WHERE  p.post_approved = 1 and t.forum_id = ' . (int) $forum_id . '
+                                ORDER BY p.post_time desc';
+
+				$result	 = $db->sql_query_limit($sql, $config['ct_post_count']);
+				while ($row	 = $db->sql_fetchrow($result))
+				{
+					$ct_example['body'] .= "<br />" . $row['post_text'];
+				}
+				$db->sql_freeresult($result);
+
+				$message = $post_data['post_subject'] . " <br /> " . $message;
+			}
+            else
+            {
+                $sql = 'SELECT t.topic_title, t.topic_first_post_id, p.post_text
+                            FROM ' . TOPICS_TABLE . ' t
+                                JOIN ' . POSTS_TABLE . ' p ON (p.post_id = t.topic_first_post_id)
+                            WHERE t.topic_id = ' . (int) $topic_id;
+                $result             = $db->sql_query($sql);
+                $topic_info          = $db->sql_fetchrow($result);
+                $db->sql_freeresult($result);
+
+                    $ct_example = array(
+                        'title'     => $topic_info['topic_title'],
+                        'body'      => $topic_info['post_text'],
+                        'comments'  => ''
+                    );
+
+                $sql = 'SELECT post_text
+                            FROM ' . POSTS_TABLE . '
+                            WHERE topic_id = ' . (int) $topic_id . ' AND post_approved = 1
+                                AND post_id <> ' . (int) $topic_info['topic_first_post_id'] . '
+                            ORDER BY post_time DESC';
+                $result    = $db->sql_query_limit($sql, $config['ct_post_count']);
+
+                while ($row   = $db->sql_fetchrow($result))
+                {
+                   $ct_example['comments'] .= $row['post_text'] . "\n";
+                }
+                $db->sql_freeresult($result);
+            }
+
+			$submit_time = null;
+			if (isset($user->data['ct_submit_time']) && preg_match("/^\d+$/", $user->data['ct_submit_time']))
+			{
+				$submit_time = time() - $user->data['ct_submit_time'];
+			}
+
+			$ct_checkjs = get_ct_checkjs();
+
+			// JSON array with additional senders params
+			$sender_info = null;
+			$post_info = null;
+			if (function_exists('json_encode'))
+			{
+				$sender_info = get_sender_info();
+
+                $sql       = 'SELECT max(post_id) as last_post_id
+                                    FROM ' . POSTS_TABLE;
+                $result       = $db->sql_query($sql);
+                $ct_post_id = (int) $db->sql_fetchfield('last_post_id') + 1;
+                $db->sql_freeresult($result);
+
+				$post_info['post_url'] = generate_board_url() . "/viewtopic.$phpEx?p=" . $ct_post_id . "#p" . $ct_post_id;
+				$post_info = json_encode($post_info);
+				
+				$ct_example = json_encode($ct_example);
+			}
+			else
+			{
+				$ct_example = implode("\n", $ct_example);
+			}
+
+			$ct_request = new CleantalkRequest();
+
+			$ct_request->auth_key		 = $config['ct_auth_key'];
+			$ct_request->message		 = $message;
+			$ct_request->sender_email	 = $user->data['user_email'];
+			$ct_request->sender_nickname = $username;
+			$ct_request->example		 = $ct_example;
+			$ct_request->agent			 = 'ct-phpbb-' . preg_replace("/(\d)\.(\d)\.(\d)/", "$1$2$3", $config['ct_version']);
+			$ct_request->sender_info	 = $sender_info;
+			$ct_request->sender_ip		 = ct_session_ip($user->data['session_ip']);
+			$ct_request->stoplist_check	 = $ct_forum['enable_stoplist_check'];
+			$ct_request->submit_time	 = $submit_time;
+			$ct_request->js_on			 = $ct_checkjs;
+			$ct_request->post_info 		= $post_info;
+
+			$ct					 = new Cleantalk();
+			$ct->work_url		 = $config['ct_work_url'];
+			$ct->server_url		 = $config['ct_server_url'];
+			$ct->server_ttl		 = $config['ct_server_ttl'];
+			$ct->server_changed	 = $config['ct_server_changed'];
+
+			$ct_result = $ct->isAllowMessage($ct_request);
+
+			if ($ct->server_change)
+			{
+				set_config('ct_work_url', $ct->work_url);
+				set_config('ct_server_ttl', $ct->server_ttl);
+				set_config('ct_server_changed', time());
+			}
+				
+			if ($ct_result->errno > 0)
+			{
+				ct_error_mail($ct_result->errstr);
+			}
+			
+			if ($ct_result->allow == 0 && isset($ct_result->stop_queue) && $ct_result->stop_queue == 1)
+			{
+				add_log('user', null, $ct_result->comment);
+				$error[] = $ct_result->comment;
+			}
+			if (!empty($ct_result->stop_words) && $post_data['enable_bbcode'])
+			{
+                $words = str_replace(':', '|', utf8_decode($ct_result->stop_words));
+                $message_parser->message = preg_replace("/({$words})/ui", "[color=#FF1000]$1[/color]", $message_parser->message);
+                
+				$message_parser->parse($post_data['enable_bbcode'], ($config['allow_post_links']) ? $post_data['enable_urls'] : false, $post_data['enable_smilies'], $img_status, $flash_status, $quote_status, $config['allow_post_links']);
+			}
+			if ($ct_result->allow == 0)
+			{
+				if (isset($ct_result->comment))
+				{
+					$message_parser->message = $message_parser->message . "<br /><br />" . $ct_result->comment;
+				}
+			}
+		}
+	}
+	// End: cleantalk.ru moderation
+]]></find>
+				<action type="replace-with"><![CDATA[	// Begin: cleantalk.ru moderation
+	if ($config['ct_enable'] && ($mode == 'reply' || $mode == 'quote' || $mode == 'post') && !$preview && !sizeof($error))
+	{
+        $username    = utf8_normalize_nfc(request_var('username', ($user->data['is_registered']) ? $user->data['username'] : '', true));
+		
+        if (!class_exists('Cleantalk'))
+		{
+			require($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+			require($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
+		}
+
+		$moderate		 = 0; // Flag to start moderation
+
+        $sql_where = array();
+        if($config['ct_moderate_guests'])
+        {
+            $sql_where[] = 'GUESTS';
+        }
+
+        if ($config['ct_moderate_newly_registered'])
+        {
+            $sql_where[] = 'NEWLY_REGISTERED';
+        }
+
+        if (!empty($sql_where))
+        {
+            $sql = '
+            SELECT g.group_name
+            FROM ' . USER_GROUP_TABLE . ' ug
+                JOIN ' . GROUPS_TABLE . ' g ON (ug.group_id = g.group_id)
+            WHERE ug.user_id = ' . (int) $user->data['user_id'] . ' AND ' . $db->sql_in_set('g.group_name', $sql_where);
+            $result    = $db->sql_query($sql);
+            $row = $db->sql_fetchrow($result);
+            if ($row !== false && isset($row['group_name']))
+            {
+                $moderate = 1; 
+            }
+            $db->sql_freeresult($result);
+        }
+        else
+        {
+            // empty array $sql_where --> nothing to moderate
+            $moderate = 0;
+        }
+
+		if ($moderate)
+		{
+
+			// Example text
+            $ct_example = array(
+                'title'     => '', 
+                'body'      => '', 
+                'comments'  => ''
+            );
+			$message	 = $message_parser->message; // Post message
+
+			if ($topic_id == 0)
+			{ // First post in topic
+                $sql    = 'SELECT p.post_text
+                                FROM ' . TOPICS_TABLE . ' t
+                                    JOIN ' . POSTS_TABLE . ' p ON (p.post_id = t.topic_first_post_id)
+                                WHERE  p.post_approved = 1 and t.forum_id = ' . (int) $forum_id . '
+                                ORDER BY p.post_time desc';
+
+				$result	 = $db->sql_query_limit($sql, $config['ct_post_count']);
+				while ($row	 = $db->sql_fetchrow($result))
+				{
+					$ct_example['body'] .= "<br />" . $row['post_text'];
+				}
+				$db->sql_freeresult($result);
+
+				$message = $post_data['post_subject'] . " <br /> " . $message;
+			}
+            else
+            {
+                $sql = 'SELECT t.topic_title, t.topic_first_post_id, p.post_text
+                            FROM ' . TOPICS_TABLE . ' t
+                                JOIN ' . POSTS_TABLE . ' p ON (p.post_id = t.topic_first_post_id)
+                            WHERE t.topic_id = ' . (int) $topic_id;
+                $result             = $db->sql_query($sql);
+                $topic_info          = $db->sql_fetchrow($result);
+                $db->sql_freeresult($result);
+
+                    $ct_example = array(
+                        'title'     => $topic_info['topic_title'],
+                        'body'      => $topic_info['post_text'],
+                        'comments'  => ''
+                    );
+
+                $sql = 'SELECT post_text
+                            FROM ' . POSTS_TABLE . '
+                            WHERE topic_id = ' . (int) $topic_id . ' AND post_approved = 1
+                                AND post_id <> ' . (int) $topic_info['topic_first_post_id'] . '
+                            ORDER BY post_time DESC';
+                $result    = $db->sql_query_limit($sql, $config['ct_post_count']);
+
+                while ($row   = $db->sql_fetchrow($result))
+                {
+                   $ct_example['comments'] .= $row['post_text'] . "\n";
+                }
+                $db->sql_freeresult($result);
+            }
+
+            $sql       = 'SELECT max(post_id) as last_post_id
+                                FROM ' . POSTS_TABLE;
+            $result       = $db->sql_query($sql);
+            $ct_post_id = (int) $db->sql_fetchfield('last_post_id') + 1;
+            $db->sql_freeresult($result);
+
+            $post_info['post_url'] = generate_board_url() . "/viewtopic.$phpEx?p=" . $ct_post_id . "#p" . $ct_post_id;
+            $post_info = json_encode($post_info);
+            
+            $ct_example = json_encode($ct_example);
+
+			$ct_request = new CleantalkRequest();
+			$ct			= new Cleantalk();
+
+			$ct_request->auth_key		 = $config['ct_auth_key'];
+			$ct_request->message		 = $message;
+			$ct_request->sender_email	 = $user->data['user_email'];
+			$ct_request->sender_nickname = $username;
+			$ct_request->example		 = $ct_example;
+            $ct_request->agent			 = 'ct-phpbb-' . preg_replace("/(\d)\.(\w+)/", "$1$2", $config['ct_version']);
+			$ct_request->sender_info	 = get_sender_info(); 
+			$ct_request->sender_ip		 = $ct->ct_session_ip($user->data['session_ip']);
+			$ct_request->submit_time	 = (!empty($user->data['ct_submit_time'])) ? time() - $user->data['ct_submit_time'] : null; 
+			$ct_request->js_on			 = get_ct_checkjs(); 
+			$ct_request->post_info 		= $post_info;
+
+			$ct->work_url		 = $config['ct_work_url'];
+			$ct->server_url		 = $config['ct_server_url'];
+			$ct->server_ttl		 = $config['ct_server_ttl'];
+			$ct->server_changed	 = $config['ct_server_changed'];
+
+			$ct_result = $ct->isAllowMessage($ct_request);
+
+			if ($ct->server_change)
+			{
+				set_config('ct_work_url', $ct->work_url);
+				set_config('ct_server_ttl', $ct->server_ttl);
+				set_config('ct_server_changed', time());
+			}
+				
+			if ($ct_result->errno > 0)
+			{
+				ct_error_mail($ct_result->errstr);
+			}
+			
+			if ($ct_result->allow == 0 && isset($ct_result->stop_queue) && $ct_result->stop_queue == 1)
+			{
+				add_log('user', null, $ct_result->comment);
+				$error[] = $ct_result->comment;
+			}
+			if (!empty($ct_result->stop_words) && $post_data['enable_bbcode'])
+			{
+                $words = str_replace(':', '|', utf8_decode($ct_result->stop_words));
+                $message_parser->message = preg_replace("/({$words})/ui", "[color=#FF1000]$1[/color]", $message_parser->message);
+                
+				$message_parser->parse($post_data['enable_bbcode'], ($config['allow_post_links']) ? $post_data['enable_urls'] : false, $post_data['enable_smilies'], $img_status, $flash_status, $quote_status, $config['allow_post_links']);
+			}
+			if ($ct_result->allow == 0)
+			{
+				if (isset($ct_result->comment))
+				{
+					$message_parser->message = $message_parser->message . "<br /><br />" . $ct_result->comment;
+				}
+			}
+		}
+	}
+	// End: cleantalk.ru moderation
+]]></action>
+			</edit>
+			<edit>
+				<find><![CDATA[				$message = ($mode == 'edit') ? 'POST_EDITED' : 'POST_STORED';
+]]></find>
+				<action type="after-add"><![CDATA[			    // Begin : cleantalk.ru moderation
+                if (isset($ct_result->allow) && $ct_result->allow == 1) 
+                {
+                    // Comment for posters about automatically approvement
+                    $user->add_lang('mods/info_acp_cleantalk');
+                    if (isset($user->lang['CT_AUTO_APPROVED'])) 
+                    {
+                        $user->lang[$message] .= '<br /><br />' . $user->lang['CT_AUTO_APPROVED'];  
+                    } 
+                }
+                // End: cleantalk.ru moderation
+]]></action>
+			</edit>
+		</open>
+		<open src="includes/mcp/mcp_queue.php">
+			<edit>
+				<find><![CDATA[			// Begin: cleantalk.ru moderation
+			global $config;
+
+			if (!class_exists('Cleantalk'))
+			{
+				require $phpbb_root_path . 'includes/cleantalk.' . $phpEx;
+				require $phpbb_root_path . 'includes/cleantalk.class.' . $phpEx;
+			}
+			$ct					 = new Cleantalk();
+			$ct->work_url		 = $config['ct_work_url'];
+			$ct->server_url		 = $config['ct_server_url'];
+			$ct->server_ttl		 = $config['ct_server_ttl'];
+			$ct->server_changed	 = $config['ct_server_changed'];
+
+			$ct_request				 = new CleantalkRequest();
+			$ct_feedback_moderate	 = null;
+
+			foreach ( $post_info as $post_id => $post_data )
+			{
+				$ct_request_id = $ct->getCleantalkCommentHash($post_data['post_text']);
+				if (isset($ct_request_id))
+				{
+					$ct_feedback_moderate = $ct_request_id . ':1;';
+
+					$ct_post_text	 = $ct->delCleantalkComment($post_data['post_text']);
+					$ct_post_text	 = preg_replace("/\[color\=\#FF1000\:[a-z0-9]+\](\S+)\[\/color\:[a-z0-9]+\]/iu", '$1', $ct_post_text);
+					if ($ct_post_text != $post_data['post_text'])
+					{
+						$sql = 'UPDATE ' . POSTS_TABLE . "
+							SET post_text = '" . $db->sql_escape($ct_post_text) . "'
+							WHERE post_id = " . (int) $post_id;
+						$db->sql_query($sql);
+					}
+				}
+			}
+			if (isset($ct_feedback_moderate) && $config['ct_enable'])
+			{
+				$ct_request->feedback = $ct_feedback_moderate;
+				$ct_request->auth_key	 = $config['ct_auth_key'];
+
+				$ct_result = $ct->sendFeedback($ct_request);
+
+				if ($ct->server_change)
+				{
+					set_config('ct_work_url', $ct->work_url);
+					set_config('ct_server_ttl', $ct->server_ttl);
+					set_config('ct_server_changed', time());
+				}
+
+				if ($ct_result->errno > 0)
+				{
+					ct_error_mail($ct_result->errstr);
+				}
+			}
+			// End: cleantalk.ru moderation]]></find>
+				<action type="replace-with"><![CDATA[			// Begin: cleantalk.ru moderation
+			global $config;
+
+			if (!class_exists('Cleantalk'))
+			{
+				require($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
+				require($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+			}
+			$ct					 = new Cleantalk();
+			$ct->work_url		 = $config['ct_work_url'];
+			$ct->server_url		 = $config['ct_server_url'];
+			$ct->server_ttl		 = $config['ct_server_ttl'];
+			$ct->server_changed	 = $config['ct_server_changed'];
+
+			$ct_request				 = new CleantalkRequest();
+			$ct_feedback_moderate	 = null;
+
+			foreach ($post_info as $post_id => $post_data)
+			{
+				$ct_request_id = $ct->getCleantalkCommentHash($post_data['post_text']);
+				if (isset($ct_request_id))
+				{
+					$ct_feedback_moderate = $ct_request_id . ':1;';
+
+					$ct_post_text	 = $ct->delCleantalkComment($post_data['post_text']);
+					$ct_post_text	 = preg_replace("/\[color\=\#FF1000\:[a-z0-9]+\](\S+)\[\/color\:[a-z0-9]+\]/iu", '$1', $ct_post_text);
+					if ($ct_post_text != $post_data['post_text'])
+					{
+						$sql = 'UPDATE ' . POSTS_TABLE . "
+							SET post_text = '" . $db->sql_escape($ct_post_text) . "'
+							WHERE post_id = " . (int) $post_id;
+						$db->sql_query($sql);
+					}
+				}
+			}
+			if (isset($ct_feedback_moderate) && $config['ct_enable'])
+			{
+				$ct_request->feedback = $ct_feedback_moderate;
+				$ct_request->auth_key	 = $config['ct_auth_key'];
+
+				$ct_result = $ct->sendFeedback($ct_request);
+
+				if ($ct->server_change)
+				{
+					set_config('ct_work_url', $ct->work_url);
+					set_config('ct_server_ttl', $ct->server_ttl);
+					set_config('ct_server_changed', time());
+				}
+
+				if ($ct_result->errno > 0)
+				{
+					ct_error_mail($ct_result->errstr);
+				}
+			}
+			// End: cleantalk.ru moderation
+		}
+]]></action>
+			</edit>
+			<edit>
+				<find><![CDATA[		// Begin : cleantalk.ru moderation
+		if ($config['ct_enable'])
+		{
+			if (!class_exists('Cleantalk'))
+			{
+				require $phpbb_root_path . 'includes/cleantalk.' . $phpEx;
+				require $phpbb_root_path . 'includes/cleantalk.class.' . $phpEx;
+			}
+			$ct					 = new Cleantalk();
+			$ct->work_url		 = $config['ct_work_url'];
+			$ct->server_url		 = $config['ct_server_url'];
+			$ct->server_ttl		 = $config['ct_server_ttl'];
+			$ct->server_changed	 = $config['ct_server_changed'];
+
+			foreach ( $post_info as $post_id => $post_data )
+			{
+				$ct_request		 = new CleantalkRequest();
+				$ct_request_id	 = $ct->getCleantalkCommentHash($post_data['post_text']);
+
+				$ct_request->feedback = $ct_request_id . ':0';
+				$ct_request->auth_key	 = $config['ct_auth_key'];
+
+				$ct_result = $ct->sendFeedback($ct_request);
+
+				if ($ct->server_change)
+				{
+					set_config('ct_work_url', $ct->work_url);
+					set_config('ct_server_ttl', $ct->server_ttl);
+					set_config('ct_server_changed', time());
+				}
+
+				if ($ct_result->errno > 0)
+				{
+					ct_error_mail($ct_result->errstr);
+				}
+			}
+		}
+		// End: cleantalk.ru moderation]]></find>
+				<action type="replace-with"><![CDATA[		// Begin : cleantalk.ru moderation
+		if ($config['ct_enable'])
+		{
+			if (!class_exists('Cleantalk'))
+			{
+				require($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
+				require($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+			}
+			$ct					 = new Cleantalk();
+			$ct->work_url		 = $config['ct_work_url'];
+			$ct->server_url		 = $config['ct_server_url'];
+			$ct->server_ttl		 = $config['ct_server_ttl'];
+			$ct->server_changed	 = $config['ct_server_changed'];
+
+			foreach ($post_info as $post_id => $post_data)
+			{
+				$ct_request		 = new CleantalkRequest();
+				$ct_request_id	 = $ct->getCleantalkCommentHash($post_data['post_text']);
+
+				$ct_request->feedback = $ct_request_id . ':0';
+				$ct_request->auth_key	 = $config['ct_auth_key'];
+
+				$ct_result = $ct->sendFeedback($ct_request);
+
+				if ($ct->server_change)
+				{
+					set_config('ct_work_url', $ct->work_url);
+					set_config('ct_server_ttl', $ct->server_ttl);
+					set_config('ct_server_changed', time());
+				}
+
+				if ($ct_result->errno > 0)
+				{
+					ct_error_mail($ct_result->errstr);
+				}
+			}
+		}
+		// End: cleantalk.ru moderation
+]]></action>
+			</edit>
+		</open>
+		<open src="includes/ucp/ucp_register.php">
+			<edit>
+				<find><![CDATA[if ($config['email_enable'])
+]]></find>
+				<action type="before-add"><![CDATA[                // Begin : cleantalk.ru moderation
+                if (isset($ct_result->allow) && $ct_result->allow == 1 && isset($user->lang['CT_SIGNUP_APPROVED'])) 
+                {
+                    // Comment for visitor about automatically approvement
+                    $message .= '<br /><br />' . $user->lang['CT_SIGNUP_APPROVED'];  
+                }
+                // End: cleantalk.ru moderation
+]]></action>
+			</edit>
+		</open>
+		<php-installer><![CDATA[install/index.php]]></php-installer>
+		<diy-instructions lang="en"><![CDATA[1. Purge cache.
+2. Remove PHPBB_ROOT/install dir.
+3. Enter Authorization key at,
+ACP -> CLEANTALK -> Settings -> Cleantalk. Spam protect
+4. Enable New users check at the same place.
+5. Enable moderation for selected forums,
+ACP -> Forums -> Manage forums -> FORUM_NAME -> Cleantalk. Spam protect
+6. Register a new user to check registration proccess.
+7. Post a message to forum where have enabled Cleantalk.]]></diy-instructions>
+	</action-group>
+</mod>
