@@ -31,7 +31,7 @@ MOD is a client application for spam protection service cleantalk.org. You shoul
 				<email><![CDATA[shagimuratov@cleantalk.org]]></email>
 			</author>
 		</author-group>
-		<mod-version>3.74</mod-version>
+		<mod-version>3.75</mod-version>
 		<installation>
 			<level>easy</level>
 			<time>300</time>
@@ -39,6 +39,9 @@ MOD is a client application for spam protection service cleantalk.org. You shoul
 		</installation>
 	</header>
 	<action-group>
+		<copy>
+			<file from="root/includes/hooks/hook_cleantalk.php" to="includes/hooks/hook_cleantalk.php"/>
+		</copy>
 		<open src="includes/mcp/mcp_queue.php">
 			<edit>
 				<find><![CDATA[            // Begin : cleantalk.ru moderation
@@ -135,6 +138,26 @@ MOD is a client application for spam protection service cleantalk.org. You shoul
 				}
 			}
 			// End: cleantalk.ru moderation]]></action>
+			</edit>
+		</open>
+		<open src="includes/ucp/ucp_register.php">
+			<edit>
+				<find><![CDATA[				// Begin: cleantalk.ru moderation
+				if (isset($ct_result->id))
+				{
+					$user_row = array_merge(array(
+						'ct_request_id' => $ct_result->id,
+							), $user_row);
+				}
+				// End: cleantalk.ru moderation
+]]></find>
+				<action type="replace-with"><![CDATA[				// Begin: cleantalk.ru moderation
+				if (isset($ct_result->id))
+				{
+                    $user_row['ct_request_id'] = $ct_result->id;
+				}
+				// End: cleantalk.ru moderation
+]]></action>
 			</edit>
 		</open>
 		<php-installer><![CDATA[install/index.php]]></php-installer>

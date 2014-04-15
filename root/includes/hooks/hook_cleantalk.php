@@ -36,14 +36,12 @@ function cleantalk_hook()
 	{
 		$ct_checkjs_def = 0;
 		$ct_checkjs_key = md5($user->data['user_form_salt'] . $user->session_id);
+        $field_id = 'ct_checkjs_' . md5(rand(0, 1000));
 		$template->assign_var('S_FORM_TOKEN',
 				$template->_rootref['S_FORM_TOKEN'] . 
-				'<input type="hidden" id="ct_checkjs" name="ct_checkjs" value="' . $ct_checkjs_def . '">
+				'<input type="hidden" id="' . $field_id . '" name="ct_checkjs" value="' . $ct_checkjs_def . '">
 				<script type="text/javascript">// <![CDATA[
-                    var elems = document.getElementsByName("ct_checkjs");
-                    for (i = 0; i < elems.length; i++){
-                         document.getElementsByName("ct_checkjs")[i].value = document.getElementsByName("ct_checkjs")[i].value.replace("' . $ct_checkjs_def .  '", "' . $ct_checkjs_key . '");
-                    }
+                    document.getElementById("' . $field_id . '").value = document.getElementById("' . $field_id . '").value.replace("' . $ct_checkjs_def .  '", "' . $ct_checkjs_key . '");  
 				// ]]></script>
 				');
 	}

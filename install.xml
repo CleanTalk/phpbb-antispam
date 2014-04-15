@@ -401,10 +401,12 @@ MOD is a client application for spam protection service cleantalk.org. You shoul
 				</changelog>
 			</entry>
 			<entry>
-				<date>2014-04-14</date>
+				<date>2014-04-15</date>
 				<rev-version>3.75</rev-version>
 				<changelog lang="en">
 					<change><![CDATA[Fixed bug at mcp_queue.php.]]></change>
+					<change><![CDATA[Improved JavaScript anti-spam test.]]></change>
+					<change><![CDATA[Updated cleantalk.org PHP API.]]></change>
 				</changelog>
 			</entry>
 		</history>
@@ -1112,12 +1114,9 @@ if (!$submit && !$preview && !$refresh)
 				<action type="after-add"><![CDATA[				// Begin: cleantalk.ru moderation
 				if (isset($ct_result->id))
 				{
-					$user_row = array_merge(array(
-						'ct_request_id' => $ct_result->id,
-							), $user_row);
+                    $user_row['ct_request_id'] = $ct_result->id;
 				}
-				// End: cleantalk.ru moderation
-]]></action>
+				// End: cleantalk.ru moderation]]></action>
 			</edit>
 			<edit>
 				<find><![CDATA[                                {
