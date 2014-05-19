@@ -12,14 +12,11 @@
 3. Allow guests posting on the forum without CAPTCHA.
 4. no CAPTCHA, no questions, no counting animals, no puzzles, no math.
 
-This MOD use several tests to stop spam bots at the board. For example,
+This MOD uses several invisible tests to stop spam bots at the board.
 
-1. Blacklists checks by Email, IP in lists with several thousands records,
-2. JavaScript availability,
-3. Registration and post submit time,
-4. Timezone test by user IP.
+MOD is a client application for spam protection service cleantalk.org. You should register at the service and get an Access key before using the MOD.
 
-MOD is a client application for spam protection service cleantalk.org. You should register at the service and get an Access key before using the MOD.]]></description>
+The MOD requires PHP5.]]></description>
 		<author-group>
 			<author>
 				<realname><![CDATA[Denis Shagimuratov]]></realname>
