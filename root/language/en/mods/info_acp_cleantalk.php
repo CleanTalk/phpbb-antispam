@@ -37,7 +37,7 @@ $lang = array_merge($lang, array(
     'ACP_CLEANTALK'                         => 'CleanTalk',
     'CT_ENABLE'                             => 'Enable MOD',
     'CT_AUTH_KEY'                       	=> 'Access key',
-    'CT_AUTH_KEY_EXPLAIN'                   => 'To get a new key please register at site <a href="http://cleantalk.org/install/phpbb3?step=2" target="_blank">cleantalk.org</a>',
+    'CT_AUTH_KEY_EXPLAIN'                   => 'To get a new key please register at site <a href="http://cleantalk.org/install/phpbb3?step=2">cleantalk.org</a>',
 	'CT_SETTINGS'                           => 'Settings',
     'CT_TITLE'                              => 'CleanTalk. Spam protection',
     'CT_TITLE_EXPLAIN'                      => 'Here you can control the basic settings mode "CleanTalk. Spam protection."',
@@ -56,11 +56,11 @@ $lang = array_merge($lang, array(
 	'CT_CONFIRM_DELETE_USER'	=> 'Are you sure delete user <b>%s</b> with all his posts?',
 	'CT_RETURN_MEMBERLIST'		=> '<a href="%s">Return to memberslist</a>',
 	'CT_CLOSE_INFO'				=> 'Close this notification',
-	'CLEANTALK_INFO'			=> '<a href="http://cleantalk.ru/phpbb3" target="_blank">Spam protection for phpBB</a>',
+	'CLEANTALK_INFO'			=> '<a href="http://cleantalk.ru/phpbb3">Spam protection for phpBB</a>',
 ));
 
 $lang = array_merge($lang, array(
-	'CT_PRIVACY_POLICY'			=> '<br />In order to protect the forum from spam your Email, Nickname, IP address, and the message can be sent to the servers anti-spam service <a href="http://cleantalk.org" title="CleanTalk" target="_blank">CleanTalk</a>.',
+	'CT_PRIVACY_POLICY'			=> '<br />In order to protect the forum from spam your Email, Nickname, IP address, and the message can be sent to the servers anti-spam service <a href="http://cleantalk.org" title="CleanTalk">CleanTalk</a>.',
 	'CT_AUTO_APPROVED'			=> 'Post approved. Anti-spam by CleanTalk.',
 	'CT_SIGNUP_APPROVED'			=> 'Account approved. Anti-spam by CleanTalk.',
 ));
@@ -69,7 +69,7 @@ $lang = array_merge($lang, array(
 	'CT_INFO'			    => 'Information',
     'CT_MOD_VERSION'            => 'Version',
     'CT_MOD_HOMEPAGE'         => 'Homepage',
-    'CT_MOD_HOMEPAGE_DATA'         => '<a href="http://cleantalk.org" target="_blank">cleantalk.org</a>',
+    'CT_MOD_HOMEPAGE_DATA'         => '<a href="http://cleantalk.org">cleantalk.org</a>',
 ));
 
 ?>

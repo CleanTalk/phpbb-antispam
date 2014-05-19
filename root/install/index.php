@@ -123,6 +123,12 @@ $versions = array(
 				 'auth'
 		    ),
     ),
+	'3.76' => array(
+	   	// no changes ... purge caches anyways
+		 'cache_purge' => array(
+				 'auth'
+		    ),
+    ),
 );
 
 // Include the UMIL Auto file and everything else will be handled automatically.

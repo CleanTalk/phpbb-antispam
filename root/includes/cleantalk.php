@@ -3,7 +3,7 @@
 /*
 
   Process phpBB 3 posts to detect SPAM and offtopic.
-  Copyright (C) 2011 Denis Shagimuratov shagimuratov@cleantalk.ru
+  Copyright (C) Denis Shagimuratov shagimuratov@cleantalk.org
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License
@@ -25,6 +25,11 @@ if (!defined('IN_PHPBB'))
 {
 	exit;
 }
+
+// JavaScript test flags
+define('CT_JS_UKNOWN', null);
+define('CT_JS_PASSED', 1);
+define('CT_JS_FAILED', 0);
 
 function ct_error_mail( $message = '', $subject = null )
 {
@@ -58,7 +63,7 @@ function ct_error_mail( $message = '', $subject = null )
 		return false;
 	}
 
-	return 1;
+	return true;
 }
 
 /*
@@ -70,7 +75,8 @@ function ct_error_mail( $message = '', $subject = null )
 	0 - JS disabled at the client browser
 	1 - JS enabled at the client broswer
 */
-function get_ct_checkjs(){
+function get_ct_checkjs()
+{
 	
 	global $template, $user;
 
@@ -80,17 +86,17 @@ function get_ct_checkjs(){
 
 	if ($ct_checkjs === $ct_checkjs_key)
     {
-		$result = 1;
+		$result = CT_JS_PASSED;
     }
 	else
     {
-		$result = 0;
+		$result = CT_JS_FAILED;
 	}
 
 	// If default value we should null variable to correctly processing request at the server side
 	if ($ct_checkjs === '')
     {
-		$result = null;
+		$result = CT_JS_UKNOWN; 
 	}
 
 	return $result;
@@ -100,8 +106,8 @@ function get_ct_checkjs(){
 	Creates sender info.
 	Returning JSON array or null.
 */
-function get_sender_info($profile = false){
-	
+function get_sender_info($profile = false)
+{
 	global $config;
 
 	$result = null;
@@ -135,6 +141,21 @@ function get_sender_info($profile = false){
 	}
 
 	return $result;
+}
+
+/**
+* Saves form load time to sessions table
+*/
+function ct_set_submit_time () 
+{
+    global $db, $user;
+
+    $sql = "UPDATE " . SESSIONS_TABLE . "
+        SET ct_submit_time = " . time() . "
+        WHERE session_id = '" . $db->sql_escape($user->session_id) . "'";
+	$db->sql_query($sql);
+    
+    return null;
 }
 
 ?>

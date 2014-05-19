@@ -6,7 +6,7 @@
 	<header>
 		<meta name="generator" content="MODX file generated with PP MODX Creator by tumba25 (online version)"/>
 		<license><![CDATA[http://opensource.org/licenses/gpl-license.php GNU General Public License v2]]></license>
-		<title lang="en"><![CDATA[Cleantalk. Spam protect v.3.75]]></title>
+		<title lang="en"><![CDATA[Cleantalk. Spam protect v.3.76]]></title>
 		<description lang="en"><![CDATA[1. Stops spam bots signups.
 2. Stops spam bots posts.
 3. Allow guests posting on the forum without CAPTCHA.
@@ -28,7 +28,7 @@ MOD is a client application for spam protection service cleantalk.org. You shoul
 				<email><![CDATA[welcome@cleantalk.org]]></email>
 			</author>
 		</author-group>
-		<mod-version>3.75</mod-version>
+		<mod-version>3.76</mod-version>
 		<installation>
 			<level>easy</level>
 			<time>300</time>
@@ -415,7 +415,7 @@ MOD is a client application for spam protection service cleantalk.org. You shoul
 			<link type="language" href="contrib/de.xml" lang="en">Deutsche</link>
 			<link type="language" href="contrib/fr.xml" lang="en">French</link>
 			<link type="language" href="contrib/es.xml" lang="en">Spanish</link>
-			<link type="contrib" href="contrib/update_3.74_to_3.75.xml" lang="en">Update from 3.74</link>
+			<link type="contrib" href="contrib/update_3.75_to_3.76.xml" lang="en">Update from 3.75</link>
 		</link-group>
 	</header>
 	<action-group>
@@ -432,60 +432,6 @@ MOD is a client application for spam protection service cleantalk.org. You shoul
 			<file from="root/includes/hooks/hook_cleantalk.php" to="includes/hooks/hook_cleantalk.php"/>
 			<file from="root/adm/mods/cleantalk_version.php" to="adm/mods/cleantalk_version.php"/>
 		</copy>
-		<open src="memberlist.php">
-			<edit>
-				<find><![CDATA[		// Get group memberships
-		// Also get visiting user's groups to determine hidden group memberships if necessary.
-		$auth_hidden_groups = ($user_id === (int) $user->data['user_id'] || $auth->acl_gets('a_group', 'a_groupadd', 'a_groupdel')) ? true : false;
-		$sql_uid_ary = ($auth_hidden_groups) ? array($user_id) : array($user_id, (int) $user->data['user_id']);
-]]></find>
-				<action type="before-add"><![CDATA[        // Begin: cleantalk.ru moderation
-        $user->add_lang(array('acp/users'));
-        $user->add_lang('mods/info_acp_cleantalk');
-
-        // You can't delete the founder
-        if ($action === 'user_del' && $member['user_type'] != USER_FOUNDER && $auth->acl_get('a_userdel') && !in_array($user_id, array(ANONYMOUS, $user->data['user_id'])))
-        {
-             $delete_type = 'remove'; // Remove all posts
-
-             if (confirm_box(true))
-             {
-                if (!function_exists('user_delete'))
-                {
-                   include($phpbb_root_path . 'includes/functions_user.' . $phpEx);
-                }
-
-                user_delete($delete_type, $user_id, $member['username']);
-
-                add_log('admin', 'LOG_USER_DELETED', $member['username']);
-
-                $redirect_url = append_sid("{$phpbb_root_path}memberlist.$phpEx", null, true, $user->session_id);
-
-                meta_refresh(5, $redirect_url);
-
-                trigger_error($user->lang['USER_DELETED'] . '<br /><br />' . sprintf($user->lang['CT_RETURN_MEMBERLIST'], $redirect_url));
-             }
-             else
-             {
-                confirm_box(false, sprintf($user->lang['CT_CONFIRM_DELETE_USER'], $member['username']), build_hidden_fields(array(
-                   'u'            => $user_id,
-                   'mode'         => $mode,
-                   'action'      => $action,
-                   'delete_type'   => $delete_type))
-                );
-             }
-        }
-        // End: cleantalk.ru moderation
-]]></action>
-			</edit>
-			<edit>
-				<find><![CDATA[			'U_USER_ADMIN'			=> ($auth->acl_get('a_user')) ? append_sid("{$phpbb_root_path}adm/index.$phpEx", 'i=users&amp;mode=overview&amp;u=' . $user_id, true, $user->session_id) : '',
-]]></find>
-				<action type="after-add"><![CDATA[            // Begin: cleantalk.ru moderation
-            'U_USER_DEL'         => ($member['user_type'] != USER_FOUNDER && $auth->acl_get('a_userdel') && !in_array($user_id, array(ANONYMOUS, $user->data['user_id']))) ? append_sid("{$phpbb_root_path}memberlist.$phpEx", 'mode=viewprofile&amp;action=user_del&amp;u=' . $user_id, true, $user->session_id) : '',
-            // End: cleantalk.ru moderation]]></action>
-			</edit>
-		</open>
 		<open src="posting.php">
 			<edit>
 				<find><![CDATA[// Load draft overview
@@ -493,18 +439,20 @@ if ($load && ($mode == 'reply' || $mode == 'quote' || $mode == 'post') && $post_
 {
 	load_drafts($topic_id, $forum_id);
 }]]></find>
-				<action type="after-add"><![CDATA[// Begin: cleantalk.ru moderation
+				<action type="after-add"><![CDATA[// Begin: Automoderation and spam protect
 /*
 	Save post form load time
 */
 if (!$submit && !$preview && !$refresh)
 {
-	$sql = "UPDATE " . SESSIONS_TABLE . "
-		SET ct_submit_time = '" . time() . "'
-		WHERE session_id = '" . $db->sql_escape($user->session_id) . "'";
-	$db->sql_query($sql);
+    if (!function_exists('ct_set_submit_time'))
+    {
+        include($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
+    }
+    ct_set_submit_time();
 }
-// End: cleantalk.ru moderation]]></action>
+// End: Automoderation and spam protect
+]]></action>
 			</edit>
 			<edit>
 				<find><![CDATA[	// DNSBL check
@@ -516,18 +464,21 @@ if (!$submit && !$preview && !$refresh)
 		}
 	}
 ]]></find>
-				<action type="after-add"><![CDATA[	// Begin: cleantalk.ru moderation
+				<action type="after-add"><![CDATA[	// Begin: Automoderation and spam protect
 	if ($config['ct_enable'] && ($mode == 'reply' || $mode == 'quote' || $mode == 'post') && !$preview && !sizeof($error))
 	{
-        $username    = utf8_normalize_nfc(request_var('username', ($user->data['is_registered']) ? $user->data['username'] : '', true));
+        $username = utf8_normalize_nfc(request_var('username', ($user->data['is_registered']) ? $user->data['username'] : '', true));
 		
         if (!class_exists('Cleantalk'))
 		{
 			include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
-			include($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
 		}
+        if (!function_exists('ct_error_mail'))
+        {
+            include($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
+        }
 
-		$moderate		 = 0; // Flag to start moderation
+		$moderate = false; // Flag to start moderation
 
         $sql_where = array();
         if($config['ct_moderate_guests'])
@@ -551,26 +502,25 @@ if (!$submit && !$preview && !$refresh)
             $row = $db->sql_fetchrow($result);
             if ($row !== false && isset($row['group_name']))
             {
-                $moderate = 1; 
+                $moderate = true; 
             }
             $db->sql_freeresult($result);
         }
         else
         {
             // empty array $sql_where --> nothing to moderate
-            $moderate = 0;
+            $moderate = false;
         }
 
 		if ($moderate)
 		{
-
 			// Example text
             $ct_example = array(
-                'title'     => '', 
-                'body'      => '', 
-                'comments'  => ''
+                'title'         => '', 
+                'body'          => '', 
+                'comments'      => ''
             );
-			$message	 = $message_parser->message; // Post message
+			$message = $message_parser->message; // Post message
 
 			if ($topic_id == 0)
 			{ // First post in topic
@@ -610,18 +560,18 @@ if (!$submit && !$preview && !$refresh)
                             WHERE topic_id = ' . (int) $topic_id . ' AND post_approved = 1
                                 AND post_id <> ' . (int) $topic_info['topic_first_post_id'] . '
                             ORDER BY post_time DESC';
-                $result    = $db->sql_query_limit($sql, $config['ct_post_count']);
+                $result = $db->sql_query_limit($sql, $config['ct_post_count']);
 
-                while ($row   = $db->sql_fetchrow($result))
+                while ($row = $db->sql_fetchrow($result))
                 {
                    $ct_example['comments'] .= $row['post_text'] . "\n";
                 }
                 $db->sql_freeresult($result);
             }
 
-            $sql       = 'SELECT max(post_id) as last_post_id
+            $sql = 'SELECT max(post_id) as last_post_id
                                 FROM ' . POSTS_TABLE;
-            $result       = $db->sql_query($sql);
+            $result = $db->sql_query($sql);
             $ct_post_id = (int) $db->sql_fetchfield('last_post_id') + 1;
             $db->sql_freeresult($result);
 
@@ -631,24 +581,24 @@ if (!$submit && !$preview && !$refresh)
             $ct_example = json_encode($ct_example);
 
 			$ct_request = new CleantalkRequest();
-			$ct			= new Cleantalk();
+			$ct = new Cleantalk();
 
-			$ct_request->auth_key		 = $config['ct_auth_key'];
-			$ct_request->message		 = $message;
-			$ct_request->sender_email	 = $user->data['user_email'];
+			$ct_request->auth_key = $config['ct_auth_key'];
+			$ct_request->message = $message;
+			$ct_request->sender_email = $user->data['user_email'];
 			$ct_request->sender_nickname = $username;
-			$ct_request->example		 = $ct_example;
-            $ct_request->agent			 = 'ct-phpbb-' . preg_replace("/(\d)\.(\w+)/", "$1$2", $config['ct_version']);
-			$ct_request->sender_info	 = get_sender_info(); 
-			$ct_request->sender_ip		 = $ct->ct_session_ip($user->data['session_ip']);
-			$ct_request->submit_time	 = (!empty($user->data['ct_submit_time'])) ? time() - $user->data['ct_submit_time'] : null; 
-			$ct_request->js_on			 = get_ct_checkjs(); 
-			$ct_request->post_info 		= $post_info;
+			$ct_request->example = $ct_example;
+            $ct_request->agent = 'ct-phpbb-' . preg_replace("/(\d)\.(\w+)/", "$1$2", $config['ct_version']);
+			$ct_request->sender_info = get_sender_info(); 
+			$ct_request->sender_ip = $ct->ct_session_ip($user->data['session_ip']);
+			$ct_request->submit_time = (!empty($user->data['ct_submit_time'])) ? time() - $user->data['ct_submit_time'] : null; 
+			$ct_request->js_on = get_ct_checkjs(); 
+			$ct_request->post_info = $post_info;
 
-			$ct->work_url		 = $config['ct_work_url'];
-			$ct->server_url		 = $config['ct_server_url'];
-			$ct->server_ttl		 = $config['ct_server_ttl'];
-			$ct->server_changed	 = $config['ct_server_changed'];
+			$ct->work_url = $config['ct_work_url'];
+			$ct->server_url	= $config['ct_server_url'];
+			$ct->server_ttl	= $config['ct_server_ttl'];
+			$ct->server_changed	= $config['ct_server_changed'];
 
 			$ct_result = $ct->isAllowMessage($ct_request);
 
@@ -685,7 +635,7 @@ if (!$submit && !$preview && !$refresh)
 			}
 		}
 	}
-	// End: cleantalk.ru moderation
+	// End: Automoderation and spam protect
 ]]></action>
 			</edit>
 			<edit>
@@ -705,20 +655,20 @@ if (!$submit && !$preview && !$refresh)
 			</edit>
 			<edit>
 				<find><![CDATA[// Check the permissions for post approval.]]></find>
-				<action type="before-add"><![CDATA[			// Begin : cleantalk.ru moderation
+				<action type="before-add"><![CDATA[            // Begin : Automoderation and spam protect
             if (isset($ct_result->id))
             {
                 $sql = 'UPDATE ' . POSTS_TABLE . '
-                            SET ct_request_id = "' . $db->sql_escape($ct_result->id) . '"
-                            WHERE post_id=' . $db->sql_escape($data['post_id']);
+                            SET ct_request_id = \'' . $db->sql_escape($ct_result->id) . '\'
+                            WHERE post_id = ' . $db->sql_escape($data['post_id']);
                 $db->sql_query($sql);
             }
-            // End: cleantalk.ru moderation
+            // End: Automoderation and spam protect
 ]]></action>
 			</edit>
 			<edit>
 				<find><![CDATA[$message = ($mode == 'edit') ? 'POST_EDITED' : 'POST_STORED';]]></find>
-				<action type="after-add"><![CDATA[                // Begin : cleantalk.ru moderation
+				<action type="after-add"><![CDATA[                // Begin : Automoderation and spam protect
                 if (isset($ct_result->allow) && $ct_result->allow == 1) 
                 {
                     // Comment for posters about automatically approvement
@@ -728,7 +678,7 @@ if (!$submit && !$preview && !$refresh)
                         $user->lang[$message] .= '<br /><br />' . $user->lang['CT_AUTO_APPROVED'];  
                     } 
                 }
-                // End: cleantalk.ru moderation
+                // End: Automoderation and spam protect
 ]]></action>
 			</edit>
 			<edit>
@@ -745,25 +695,25 @@ if (!$submit && !$preview && !$refresh)
 				'post_postcount'		=> $post_data['post_postcount']
 			);
 ]]></find>
-				<action type="after-add"><![CDATA[            // Begin: cleantalk.ru moderation
-			$sql					 = 'SELECT ct_request_id
+				<action type="after-add"><![CDATA[            // Begin: Automoderation and spam protect
+            $sql = 'SELECT ct_request_id
 			FROM ' . POSTS_TABLE . '
 			WHERE post_id = ' . (int) $post_id;
 
+            $result	= $db->sql_query($sql);
+            $row = $db->sql_fetchrow($result);
+            $ct_request_id = $row['ct_request_id'];
 
-			$result			 = $db->sql_query($sql);
-			$row			 = $db->sql_fetchrow($result);
-			$ct_request_id	 = $row['ct_request_id'];
-
-			if (!empty($ct_request_id))
-			{
-
-
-				if (!class_exists('Cleantalk'))
-				{
-					include($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
-					include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
-				}
+            if (!empty($ct_request_id))
+            {
+                if (!class_exists('Cleantalk'))
+                {
+                    include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+                }
+                if (!function_exists('ct_error_mail'))
+                {
+                    include($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
+                }
 				$ct					 = new Cleantalk();
 				$ct->work_url		 = $config['ct_work_url'];
 				$ct->server_url		 = $config['ct_server_url'];
@@ -787,21 +737,7 @@ if (!$submit && !$preview && !$refresh)
 					ct_error_mail($ct_result->errstr);
 				}
 			}
-			// End: cleantalk.ru moderation
-]]></action>
-			</edit>
-		</open>
-		<open src="includes/functions_template.php">
-			<edit>
-				<find><![CDATA[		$this->template->compiled_code[$handle] = $this->compile(trim(@file_get_contents($this->template->files[$handle])));]]></find>
-				<action type="after-add"><![CDATA[		// Begin : cleantalk.ru moderation
-		if ($this->template->filename['body'] == 'memberlist_view.html')
-		{
-			$this->template->compiled_code['body'] = str_replace(
-					"'{ USE_PERMISSIONS }')); ?></a> ]<?php } ?>", '\'{ USE_PERMISSIONS }\')); ?></a> ]<?php } ?>
-                                        <?php if ($this->_rootref[\'U_USER_DEL\']) {  ?> [ <a href="<?php echo (isset($this->_rootref[\'U_USER_DEL\'])) ? $this->_rootref[\'U_USER_DEL\'] : \'\'; ?>"><span style="color: red;"><?php echo ((isset($this->_rootref[\'L_DELETE_USER\'])) ? $this->_rootref[\'L_DELETE_USER\'] : ((isset($user->lang[\'DELETE_USER\'])) ? $user->lang[\'DELETE_USER\'] : \'{ DELETE_USER }\')); ?></span></a> ]<?php } ?>', $this->template->compiled_code['body']);
-		}
-		// End: cleantalk.ru moderation
+			// End: Automoderation and spam protect
 ]]></action>
 			</edit>
 		</open>
@@ -813,25 +749,24 @@ if (!$submit && !$preview && !$refresh)
 		set_config_count('num_users', -1, true);
 	}
 ]]></find>
-				<action type="after-add"><![CDATA[// Begin: cleantalk.ru moderation
+				<action type="after-add"><![CDATA[    // Begin: Automoderation and spam protect
 	if ($config['ct_enable'] && (isset($user_row['ct_request_id']) && $user_row['ct_request_id'] !== ''))
 	{
 		$ct_request_id = $user_row['ct_request_id'];
 
 		if (!class_exists('Cleantalk'))
 		{
-			include($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
 			include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
 		}
-		$ct					 = new Cleantalk();
-		$ct->work_url		 = $config['ct_work_url'];
-		$ct->server_url		 = $config['ct_server_url'];
-		$ct->server_ttl		 = $config['ct_server_ttl'];
-		$ct->server_changed	 = $config['ct_server_changed'];
+		$ct	= new Cleantalk();
+		$ct->work_url = $config['ct_work_url'];
+		$ct->server_url	= $config['ct_server_url'];
+		$ct->server_ttl	= $config['ct_server_ttl'];
+		$ct->server_changed	= $config['ct_server_changed'];
 
-		$ct_request				 = new CleantalkRequest();
-		$ct_request->feedback	 = $ct_request_id . ':0';
-		$ct_request->auth_key	 = $config['ct_auth_key'];
+		$ct_request	= new CleantalkRequest();
+		$ct_request->feedback = $ct_request_id . ':0';
+		$ct_request->auth_key = $config['ct_auth_key'];
 
 		$ct_feedback['moderate'][] =
 				array(
@@ -849,10 +784,14 @@ if (!$submit && !$preview && !$refresh)
 
 		if ($ct_result->errno > 0)
 		{
+            if (!function_exists('ct_error_mail'))
+            {
+                include($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
+            }
 			ct_error_mail($ct_result->errstr);
 		}
 	}
-	// End: cleantalk.ru moderation
+	// End: Automoderation and spam protect
 ]]></action>
 			</edit>
 		</open>
@@ -861,55 +800,50 @@ if (!$submit && !$preview && !$refresh)
 				<find><![CDATA[		// Now delete the posts, topics and forums are automatically resync'ed
 		delete_posts('post_id', $post_ids);
 ]]></find>
-				<action type="before-add"><![CDATA[		// Begin: cleantalk.ru moderation
-		global $config;
-
-		if (!class_exists('Cleantalk'))
+				<action type="before-add"><![CDATA[		// Begin: Automoderation and spam protect
+		if ($config['ct_enable'])
 		{
-			include($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
-			include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
-		}
-		$ct					 = new Cleantalk();
-		$ct->work_url		 = $config['ct_work_url'];
-		$ct->server_url		 = $config['ct_server_url'];
-		$ct->server_ttl		 = $config['ct_server_ttl'];
-		$ct->server_changed	 = $config['ct_server_changed'];
+            if (!class_exists('Cleantalk'))
+            {
+                include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+            }
+            $ct = new Cleantalk();
+            $ct->work_url = $config['ct_work_url'];
+            $ct->server_url = $config['ct_server_url'];
+            $ct->server_ttl = $config['ct_server_ttl'];
+            $ct->server_changed = $config['ct_server_changed'];
 
-		$ct_request				 = new CleantalkRequest();
-		$ct_feedback_moderate	 = null;
+            $ct_request = new CleantalkRequest();
+            $ct_feedback_moderate = null;
 
-		$ct_post_ids = implode(',', $post_ids);
-		$sql		 = 'SELECT ct_request_id
-			FROM ' . POSTS_TABLE . '
-			WHERE ' . $db->sql_in_set('post_id', $ct_post_ids);
+            $ct_post_ids = implode(',', $post_ids);
+            $sql = 'SELECT ct_request_id
+                FROM ' . POSTS_TABLE . '
+                WHERE ' . $db->sql_in_set('post_id', $ct_post_ids);
 
 
-		$result	 = $db->sql_query($sql);
-		while ($row	 = $db->sql_fetchrow($result))
-		{
-			if (!empty($row['ct_request_id']))
-			{
-				$ct_feedback_moderate .= $row['ct_request_id'] . ':0;';
-			}
-		}
+            $result	 = $db->sql_query($sql);
+            while ($row	= $db->sql_fetchrow($result))
+            {
+                if (!empty($row['ct_request_id']))
+                {
+                    $ct_feedback_moderate .= $row['ct_request_id'] . ':0;';
+                }
+            }
 
-		$ct_request->feedback = $ct_feedback_moderate;
-		$ct_request->auth_key	 = $config['ct_auth_key'];
+            $ct_request->feedback = $ct_feedback_moderate;
+            $ct_request->auth_key = $config['ct_auth_key'];
 
-		$ct_result = $ct->sendFeedback($ct_request);
+            $ct_result = $ct->sendFeedback($ct_request);
 
-		if ($ct->server_change)
-		{
-			set_config('ct_work_url', $ct->work_url);
-			set_config('ct_server_ttl', $ct->server_ttl);
-			set_config('ct_server_changed', time());
-		}
-
-		if ($ct_result->errno > 0)
-		{
-			ct_error_mail($ct_result->errstr);
-		}
-		// End: cleantalk.ru moderation
+            if ($ct->server_change)
+            {
+                set_config('ct_work_url', $ct->work_url);
+                set_config('ct_server_ttl', $ct->server_ttl);
+                set_config('ct_server_changed', time());
+            }
+        }
+		// End: Automoderation and spam protect
 ]]></action>
 			</edit>
 		</open>
@@ -922,61 +856,56 @@ if (!$submit && !$preview && !$refresh)
 				WHERE ' . $db->sql_in_set('post_id', $post_approve_sql);
 			$db->sql_query($sql);
 ]]></find>
-				<action type="after-add"><![CDATA[			// Begin: cleantalk.ru moderation
-			global $config;
+				<action type="after-add"><![CDATA[			// Begin: Automoderation and spam protect
+            if ($config['ct_enable'])
+            {
+                if (!class_exists('Cleantalk'))
+                {
+                    require($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+                }
+                $ct	= new Cleantalk();
+                $ct->work_url = $config['ct_work_url'];
+                $ct->server_url	= $config['ct_server_url'];
+                $ct->server_ttl	= $config['ct_server_ttl'];
+                $ct->server_changed	= $config['ct_server_changed'];
 
-			if (!class_exists('Cleantalk'))
-			{
-				require($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
-				require($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
-			}
-			$ct					 = new Cleantalk();
-			$ct->work_url		 = $config['ct_work_url'];
-			$ct->server_url		 = $config['ct_server_url'];
-			$ct->server_ttl		 = $config['ct_server_ttl'];
-			$ct->server_changed	 = $config['ct_server_changed'];
+                $ct_request	= new CleantalkRequest();
+                $ct_feedback_moderate = null;
 
-			$ct_request				 = new CleantalkRequest();
-			$ct_feedback_moderate	 = null;
+                foreach ($post_info as $post_id => $post_data)
+                {
+                    $ct_request_id = $ct->getCleantalkCommentHash($post_data['post_text']);
+                    if (isset($ct_request_id))
+                    {
+                        $ct_feedback_moderate = $ct_request_id . ':1;';
 
-			foreach ($post_info as $post_id => $post_data)
-			{
-				$ct_request_id = $ct->getCleantalkCommentHash($post_data['post_text']);
-				if (isset($ct_request_id))
-				{
-					$ct_feedback_moderate = $ct_request_id . ':1;';
+                        $ct_post_text = $ct->delCleantalkComment($post_data['post_text']);
+                        $ct_post_text = preg_replace("/\[color\=\#FF1000\:[a-z0-9]+\](\S+)\[\/color\:[a-z0-9]+\]/iu", '$1', $ct_post_text);
+                        if ($ct_post_text != $post_data['post_text'])
+                        {
+                            $sql = 'UPDATE ' . POSTS_TABLE . "
+                                SET post_text = '" . $db->sql_escape($ct_post_text) . "'
+                                WHERE post_id = " . (int) $post_id;
+                            $db->sql_query($sql);
+                        }
+                    }
+                }
+                if (isset($ct_feedback_moderate) && $config['ct_enable'])
+                {
+                    $ct_request->feedback = $ct_feedback_moderate;
+                    $ct_request->auth_key = $config['ct_auth_key'];
 
-					$ct_post_text	 = $ct->delCleantalkComment($post_data['post_text']);
-					$ct_post_text	 = preg_replace("/\[color\=\#FF1000\:[a-z0-9]+\](\S+)\[\/color\:[a-z0-9]+\]/iu", '$1', $ct_post_text);
-					if ($ct_post_text != $post_data['post_text'])
-					{
-						$sql = 'UPDATE ' . POSTS_TABLE . "
-							SET post_text = '" . $db->sql_escape($ct_post_text) . "'
-							WHERE post_id = " . (int) $post_id;
-						$db->sql_query($sql);
-					}
-				}
-			}
-			if (isset($ct_feedback_moderate) && $config['ct_enable'])
-			{
-				$ct_request->feedback = $ct_feedback_moderate;
-				$ct_request->auth_key	 = $config['ct_auth_key'];
+                    $ct_result = $ct->sendFeedback($ct_request);
 
-				$ct_result = $ct->sendFeedback($ct_request);
-
-				if ($ct->server_change)
-				{
-					set_config('ct_work_url', $ct->work_url);
-					set_config('ct_server_ttl', $ct->server_ttl);
-					set_config('ct_server_changed', time());
-				}
-
-				if ($ct_result->errno > 0)
-				{
-					ct_error_mail($ct_result->errstr);
-				}
-			}
-			// End: cleantalk.ru moderation
+                    if ($ct->server_change)
+                    {
+                        set_config('ct_work_url', $ct->work_url);
+                        set_config('ct_server_ttl', $ct->server_ttl);
+                        set_config('ct_server_changed', time());
+                    }
+                }
+            }
+			// End: Automoderation and spam protect
 ]]></action>
 			</edit>
 			<edit>
@@ -989,27 +918,26 @@ if (!$submit && !$preview && !$refresh)
 				$topic_replies_real[$post_data['topic_id']] = $post_data['topic_replies_real'];
 			}
 		}]]></find>
-				<action type="after-add"><![CDATA[		// Begin : cleantalk.ru moderation
+				<action type="after-add"><![CDATA[		// Begin : Automoderation and spam protect
 		if ($config['ct_enable'])
 		{
 			if (!class_exists('Cleantalk'))
 			{
-				include($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
 				include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
 			}
-			$ct					 = new Cleantalk();
-			$ct->work_url		 = $config['ct_work_url'];
-			$ct->server_url		 = $config['ct_server_url'];
-			$ct->server_ttl		 = $config['ct_server_ttl'];
-			$ct->server_changed	 = $config['ct_server_changed'];
+			$ct = new Cleantalk();
+			$ct->work_url = $config['ct_work_url'];
+			$ct->server_url = $config['ct_server_url'];
+			$ct->server_ttl	= $config['ct_server_ttl'];
+			$ct->server_changed = $config['ct_server_changed'];
 
 			foreach ($post_info as $post_id => $post_data)
 			{
-				$ct_request		 = new CleantalkRequest();
-				$ct_request_id	 = $ct->getCleantalkCommentHash($post_data['post_text']);
+				$ct_request = new CleantalkRequest();
+				$ct_request_id = $ct->getCleantalkCommentHash($post_data['post_text']);
 
 				$ct_request->feedback = $ct_request_id . ':0';
-				$ct_request->auth_key	 = $config['ct_auth_key'];
+				$ct_request->auth_key = $config['ct_auth_key'];
 
 				$ct_result = $ct->sendFeedback($ct_request);
 
@@ -1019,14 +947,10 @@ if (!$submit && !$preview && !$refresh)
 					set_config('ct_server_ttl', $ct->server_ttl);
 					set_config('ct_server_changed', time());
 				}
-
-				if ($ct_result->errno > 0)
-				{
-					ct_error_mail($ct_result->errstr);
-				}
 			}
 		}
-		// End: cleantalk.ru moderation]]></action>
+		// End: Automoderation and spam protect
+]]></action>
 			</edit>
 		</open>
 		<open src="includes/ucp/ucp_register.php">
@@ -1037,14 +961,20 @@ if (!$submit && !$preview && !$refresh)
 				}
 			}
 ]]></find>
-				<action type="after-add"><![CDATA[			// Begin: cleantalk.ru moderation
+				<action type="after-add"><![CDATA[			// Begin: Automoderation and spam protect 
 			if (!sizeof($error) && $config['ct_newuser'] && $config['ct_enable'])
 			{
 		        $user->add_lang('mods/info_acp_cleantalk');
+                
+                if (!class_exists('Cleantalk'))
+                {
+                    include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+                }
+                if (!function_exists('ct_error_mail'))
+                {
+                    include($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
+                }
 
-				include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
-				include($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
-				
                 $ct_request			= new CleantalkRequest();
                 $ct					= new Cleantalk();
 
@@ -1082,7 +1012,9 @@ if (!$submit && !$preview && !$refresh)
                     $config['require_activation'] = USER_ACTIVATION_ADMIN;
                     
                     if ($ct_result->errno > 0)
+                    {
                         ct_error_mail($ct_result->errstr);
+                    }
                     
                 }
                 if ($ct_result->allow === 0 && !isset($ct_result->sms_allow) && $ct_result->inactive == 0)
@@ -1091,7 +1023,7 @@ if (!$submit && !$preview && !$refresh)
                     add_log('user', null, sprintf($user->lang['CT_USER_DENY'], $data['username'], $data['email']) . ' ' . strip_tags($ct_result->comment));
                 }
 			}
-			// End: cleantalk.ru moderation
+			// End: Automoderation and spam protect
 ]]></action>
 			</edit>
 			<edit>
@@ -1111,12 +1043,13 @@ if (!$submit && !$preview && !$refresh)
 					'user_inactive_time'	=> $user_inactive_time,
 				);
 ]]></find>
-				<action type="after-add"><![CDATA[				// Begin: cleantalk.ru moderation
+				<action type="after-add"><![CDATA[				// Begin: Automoderation and spam protect
 				if (isset($ct_result->id))
 				{
                     $user_row['ct_request_id'] = $ct_result->id;
 				}
-				// End: cleantalk.ru moderation]]></action>
+				// End: Automoderation and spam protect
+]]></action>
 			</edit>
 			<edit>
 				<find><![CDATA[                                {
@@ -1124,26 +1057,27 @@ if (!$submit && !$preview && !$refresh)
                                         $email_template = 'user_welcome';
                                 }
 ]]></find>
-				<action type="after-add"><![CDATA[                // Begin : cleantalk.ru moderation
+				<action type="after-add"><![CDATA[                // Begin : Automoderation and spam protect
                 if (isset($ct_result->allow) && $ct_result->allow == 1 && isset($user->lang['CT_SIGNUP_APPROVED'])) 
                 {
                     // Comment for visitor about automatically approvement
                     $message .= '<br /><br />' . $user->lang['CT_SIGNUP_APPROVED'];  
                 }
-                // End: cleantalk.ru moderation
+                // End: Automoderation and spam protect
+
 ]]></action>
 			</edit>
 			<edit>
 				<find><![CDATA[							$messenger->send($row['user_notify_type']);
 ]]></find>
-				<action type="before-add"><![CDATA[							// Begin: cleantalk.ru moderation
+				<action type="before-add"><![CDATA[							// Begin: Automoderation and spam protect
 							if (isset($ct_activation_admin))
 							{
 								$messenger->assign_vars(array(
 									'EMAIL_SIG'			=> $ct_activation_comment
 								));
 							}
-							// End: cleantalk.ru moderation
+							// End: Automoderation and spam protect
 ]]></action>
 			</edit>
 			<edit>
@@ -1152,12 +1086,13 @@ if (!$submit && !$preview && !$refresh)
 			'change_lang'	=> 0,
 		);
 ]]></find>
-				<action type="before-add"><![CDATA[		// Begin: cleantalk.ru moderation
-		$sql = "UPDATE " . SESSIONS_TABLE . "
-			SET ct_submit_time = '" . time() . "'
-			WHERE session_id = '" . $db->sql_escape($user->session_id) . "'";
-		$db->sql_query($sql);
-		// End: cleantalk.ru moderation
+				<action type="before-add"><![CDATA[		// Begin: Automoderation and spam protect
+        if (!function_exists('ct_set_submit_time'))
+        {
+		    include($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
+        }
+        ct_set_submit_time();
+		// End: Automoderation and spam protect
 ]]></action>
 			</edit>
 		</open>
