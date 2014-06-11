@@ -60,7 +60,7 @@ if (!$submit && !$preview && !$refresh)
 	$db->sql_query($sql);
 }
 // End: cleantalk.ru moderation]]></find>
-				<action type="replace-with"><![CDATA[// Begin: Automoderation and spam protect
+				<action type="replace-with"><![CDATA[// Begin: Cleantalk. Spam protect
 /*
 	Save post form load time
 */
@@ -72,7 +72,7 @@ if (!$submit && !$preview && !$refresh)
     }
     ct_set_submit_time();
 }
-// End: Automoderation and spam protect
+// End: Cleantalk. Spam protect
 ]]></action>
 			</edit>
 			<edit>
@@ -246,7 +246,7 @@ if (!$submit && !$preview && !$refresh)
 		}
 	}
 	// End: cleantalk.ru moderation ]]></find>
-				<action type="replace-with"><![CDATA[	// Begin: Automoderation and spam protect
+				<action type="replace-with"><![CDATA[	// Begin: Cleantalk. Spam protect
 	if ($config['ct_enable'] && ($mode == 'reply' || $mode == 'quote' || $mode == 'post') && !$preview && !sizeof($error))
 	{
         $username = utf8_normalize_nfc(request_var('username', ($user->data['is_registered']) ? $user->data['username'] : '', true));
@@ -417,7 +417,7 @@ if (!$submit && !$preview && !$refresh)
 			}
 		}
 	}
-	// End: Automoderation and spam protect
+	// End: Cleantalk. Spam protect
 ]]></action>
 			</edit>
 			<edit>
@@ -430,7 +430,7 @@ if (!$submit && !$preview && !$refresh)
                 $db->sql_query($sql);
             }
             // End: cleantalk.ru moderation ]]></find>
-				<action type="replace-with"><![CDATA[            // Begin : Automoderation and spam protect
+				<action type="replace-with"><![CDATA[            // Begin : Cleantalk. Spam protect
             if (isset($ct_result->id))
             {
                 $sql = 'UPDATE ' . POSTS_TABLE . '
@@ -438,7 +438,7 @@ if (!$submit && !$preview && !$refresh)
                             WHERE post_id = ' . $db->sql_escape($data['post_id']);
                 $db->sql_query($sql);
             }
-            // End: Automoderation and spam protect
+            // End: Cleantalk. Spam protect
 ]]></action>
 			</edit>
 		</open>
@@ -505,7 +505,7 @@ if (!$submit && !$preview && !$refresh)
 			ct_error_mail($ct_result->errstr);
 		}
 		// End: cleantalk.ru moderation ]]></find>
-				<action type="replace-with"><![CDATA[		// Begin: Automoderation and spam protect
+				<action type="replace-with"><![CDATA[		// Begin: Cleantalk. Spam protect
 		if ($config['ct_enable'])
 		{
             if (!class_exists('Cleantalk'))
@@ -548,7 +548,7 @@ if (!$submit && !$preview && !$refresh)
                 set_config('ct_server_changed', time());
             }
         }
-		// End: Automoderation and spam protect
+		// End: Cleantalk. Spam protect
 ]]></action>
 			</edit>
 		</open>
@@ -609,7 +609,7 @@ if (!$submit && !$preview && !$refresh)
 				}
 			}
 			// End: cleantalk.ru moderation]]></find>
-				<action type="replace-with"><![CDATA[			// Begin: Automoderation and spam protect
+				<action type="replace-with"><![CDATA[			// Begin: Cleantalk. Spam protect
             if ($config['ct_enable'])
             {
                 if (!class_exists('Cleantalk'))
@@ -658,7 +658,7 @@ if (!$submit && !$preview && !$refresh)
                     }
                 }
             }
-			// End: Automoderation and spam protect]]></action>
+			// End: Cleantalk. Spam protect]]></action>
 			</edit>
 			<edit>
 				<find><![CDATA[		// Begin : cleantalk.ru moderation
@@ -699,7 +699,7 @@ if (!$submit && !$preview && !$refresh)
 			}
 		}
 		// End: cleantalk.ru moderation]]></find>
-				<action type="replace-with"><![CDATA[		// Begin : Automoderation and spam protect
+				<action type="replace-with"><![CDATA[		// Begin : Cleantalk. Spam protect
 		if ($config['ct_enable'])
 		{
 			if (!class_exists('Cleantalk'))
@@ -730,7 +730,7 @@ if (!$submit && !$preview && !$refresh)
 				}
 			}
 		}
-		// End: Automoderation and spam protect]]></action>
+		// End: Cleantalk. Spam protect]]></action>
 			</edit>
 		</open>
 		<open src="includes/ucp/ucp_register.php">
@@ -741,13 +741,13 @@ if (!$submit && !$preview && !$refresh)
 			WHERE session_id = '" . $db->sql_escape($user->session_id) . "'";
 		$db->sql_query($sql);
 		// End: cleantalk.ru moderation ]]></find>
-				<action type="replace-with"><![CDATA[		// Begin: Automoderation and spam protect
+				<action type="replace-with"><![CDATA[		// Begin: Cleantalk. Spam protect
         if (!function_exists('ct_set_submit_time'))
         {
 		    include($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
         }
         ct_set_submit_time();
-		// End: Automoderation and spam protect
+		// End: Cleantalk. Spam protect
 ]]></action>
 			</edit>
 		</open>

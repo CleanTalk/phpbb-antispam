@@ -406,6 +406,13 @@ The MOD requires PHP5.]]></description>
 					<change><![CDATA[Updated cleantalk.org PHP API.]]></change>
 				</changelog>
 			</entry>
+			<entry>
+				<date>2014-06-11</date>
+				<rev-version>3.76</rev-version>
+				<changelog lang="en">
+					<change><![CDATA[Fixid PHP code.]]></change>
+				</changelog>
+			</entry>
 		</history>
 		<link-group>
 			<link type="language" href="contrib/ru.xml" lang="en">Russian language</link>
