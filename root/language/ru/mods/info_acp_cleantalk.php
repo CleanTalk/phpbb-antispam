@@ -51,7 +51,7 @@ $lang = array_merge($lang, array(
 ));
 
 $lang = array_merge($lang, array(
-	'CT_ERROR'			=> 'Произошла ошибка "%s" во время работы с сервером автомодерации %s',
+	'CT_ERROR'			=> 'Произошла ошибка во время работы с сервером автомодерации %s',
 	'CT_USER_DENY'		=> 'Имя пользователя: %s, email: %s.',
 	'CT_CONFIRM_DELETE_USER'		=> 'Удалить пользователя <b>%s</b> и все его сообщения?',
 	'CT_RETURN_MEMBERLIST'		=> '<a href="%s">Вернуться в список пользователей</a>',

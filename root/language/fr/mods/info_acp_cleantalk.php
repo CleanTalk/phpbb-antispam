@@ -51,7 +51,7 @@ $lang = array_merge($lang, array(
 ));
 
 $lang = array_merge($lang, array(
-	'CT_ERROR'					=> 'Il y a un erreur : %s pendant le contact avec le serveur du CleanTalk %s',
+	'CT_ERROR'					=> 'Il y a un erreur pendant le contact avec le serveur du CleanTalk %s',
 	'CT_USER_DENY'				=> 'Le nom d’utilisateur: %s, courriel: %s .',
 	'CT_CONFIRM_DELETE_USER'	=> 'Êtes-vous sûrs de l’effacement de l’utilisateur <b>%s</b> avec toutes ses postes?',
 	'CT_RETURN_MEMBERLIST'		=> '<a href="%s">Rentrer au liste des utilisateurs</a>',

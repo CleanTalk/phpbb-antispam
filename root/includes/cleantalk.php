@@ -55,7 +55,7 @@ function ct_error_mail( $message = '', $subject = null )
 
 	$err_msg = '';
 	$subject = ($subject == null) ? $config['ct_server_url'] : $subject;
-	$err_str = sprintf($user->lang['CT_ERROR'], $message, $config['ct_server_url']);
+	$err_str = sprintf($user->lang['CT_ERROR'], $config['ct_server_url']);
 	$result	 = phpbb_mail($config['board_email'], $subject, $err_str, $headers, "\n", $err_msg);
 
 	if (!$result)

@@ -51,7 +51,7 @@ $lang = array_merge($lang, array(
 ));
 
 $lang = array_merge($lang, array(
-	'CT_ERROR'			=> 'Ein Fehler %s ist beim Lauf des Servers der automatischen Moderation aufgetreten %s.',
+	'CT_ERROR'			=> 'Ein Fehler ist beim Lauf des Servers der automatischen Moderation aufgetreten %s.',
 	'CT_USER_DENY'		=> 'Benutzername: %s, email: %s.',
 	'CT_CONFIRM_DELETE_USER'		=> 'Das Benutzerprofil <b>%s</b> und alle dessen Beiträge löschen?',
 	'CT_RETURN_MEMBERLIST'		=> '<a href="%s">Zurück zur Benutzerliste</a>',

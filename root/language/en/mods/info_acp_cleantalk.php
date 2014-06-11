@@ -51,7 +51,7 @@ $lang = array_merge($lang, array(
 ));
 
 $lang = array_merge($lang, array(
-	'CT_ERROR'					=> 'Got error: %s while connecting to Cleantalk server %s',
+	'CT_ERROR'					=> 'Got error while connecting to Cleantalk server %s',
 	'CT_USER_DENY'				=> 'User name: %s, email: %s.',
 	'CT_CONFIRM_DELETE_USER'	=> 'Are you sure delete user <b>%s</b> with all his posts?',
 	'CT_RETURN_MEMBERLIST'		=> '<a href="%s">Return to memberslist</a>',
