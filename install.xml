@@ -90,7 +90,7 @@ The MOD requires PHP5.]]></description>
 				<rev-version>1.4.2</rev-version>
 				<changelog lang="en">
 					<change><![CDATA[Disabled MOD options for Category and Link.]]></change>
-					<change><![CDATA[Renamed mod from "Automoderation and spam protect" to "Cleantalk. Spam protect service".]]></change>
+					<change><![CDATA[Renamed mod from "Cleantalk. Spam protect" to "Cleantalk. Spam protect service".]]></change>
 				</changelog>
 			</entry>
 			<entry>
@@ -436,7 +436,7 @@ if ($load && ($mode == 'reply' || $mode == 'quote' || $mode == 'post') && $post_
 {
 	load_drafts($topic_id, $forum_id);
 }]]></find>
-				<action type="after-add"><![CDATA[// Begin: Automoderation and spam protect
+				<action type="after-add"><![CDATA[// Begin: Cleantalk. Spam protect
 /*
 	Save post form load time
 */
@@ -448,7 +448,7 @@ if (!$submit && !$preview && !$refresh)
     }
     ct_set_submit_time();
 }
-// End: Automoderation and spam protect
+// End: Cleantalk. Spam protect
 ]]></action>
 			</edit>
 			<edit>
@@ -461,7 +461,7 @@ if (!$submit && !$preview && !$refresh)
 		}
 	}
 ]]></find>
-				<action type="after-add"><![CDATA[	// Begin: Automoderation and spam protect
+				<action type="after-add"><![CDATA[	// Begin: Cleantalk. Spam protect
 	if ($config['ct_enable'] && ($mode == 'reply' || $mode == 'quote' || $mode == 'post') && !$preview && !sizeof($error))
 	{
         $username = utf8_normalize_nfc(request_var('username', ($user->data['is_registered']) ? $user->data['username'] : '', true));
@@ -632,7 +632,7 @@ if (!$submit && !$preview && !$refresh)
 			}
 		}
 	}
-	// End: Automoderation and spam protect
+	// End: Cleantalk. Spam protect
 ]]></action>
 			</edit>
 			<edit>
@@ -652,7 +652,7 @@ if (!$submit && !$preview && !$refresh)
 			</edit>
 			<edit>
 				<find><![CDATA[// Check the permissions for post approval.]]></find>
-				<action type="before-add"><![CDATA[            // Begin : Automoderation and spam protect
+				<action type="before-add"><![CDATA[            // Begin : Cleantalk. Spam protect
             if (isset($ct_result->id))
             {
                 $sql = 'UPDATE ' . POSTS_TABLE . '
@@ -660,12 +660,12 @@ if (!$submit && !$preview && !$refresh)
                             WHERE post_id = ' . $db->sql_escape($data['post_id']);
                 $db->sql_query($sql);
             }
-            // End: Automoderation and spam protect
+            // End: Cleantalk. Spam protect
 ]]></action>
 			</edit>
 			<edit>
 				<find><![CDATA[$message = ($mode == 'edit') ? 'POST_EDITED' : 'POST_STORED';]]></find>
-				<action type="after-add"><![CDATA[                // Begin : Automoderation and spam protect
+				<action type="after-add"><![CDATA[                // Begin : Cleantalk. Spam protect
                 if (isset($ct_result->allow) && $ct_result->allow == 1) 
                 {
                     // Comment for posters about automatically approvement
@@ -675,7 +675,7 @@ if (!$submit && !$preview && !$refresh)
                         $user->lang[$message] .= '<br /><br />' . $user->lang['CT_AUTO_APPROVED'];  
                     } 
                 }
-                // End: Automoderation and spam protect
+                // End: Cleantalk. Spam protect
 ]]></action>
 			</edit>
 			<edit>
@@ -692,7 +692,7 @@ if (!$submit && !$preview && !$refresh)
 				'post_postcount'		=> $post_data['post_postcount']
 			);
 ]]></find>
-				<action type="after-add"><![CDATA[            // Begin: Automoderation and spam protect
+				<action type="after-add"><![CDATA[            // Begin: Cleantalk. Spam protect
             $sql = 'SELECT ct_request_id
 			FROM ' . POSTS_TABLE . '
 			WHERE post_id = ' . (int) $post_id;
@@ -734,7 +734,7 @@ if (!$submit && !$preview && !$refresh)
 					ct_error_mail($ct_result->errstr);
 				}
 			}
-			// End: Automoderation and spam protect
+			// End: Cleantalk. Spam protect
 ]]></action>
 			</edit>
 		</open>
@@ -746,7 +746,7 @@ if (!$submit && !$preview && !$refresh)
 		set_config_count('num_users', -1, true);
 	}
 ]]></find>
-				<action type="after-add"><![CDATA[    // Begin: Automoderation and spam protect
+				<action type="after-add"><![CDATA[    // Begin: Cleantalk. Spam protect
 	if ($config['ct_enable'] && (isset($user_row['ct_request_id']) && $user_row['ct_request_id'] !== ''))
 	{
 		$ct_request_id = $user_row['ct_request_id'];
@@ -788,7 +788,7 @@ if (!$submit && !$preview && !$refresh)
 			ct_error_mail($ct_result->errstr);
 		}
 	}
-	// End: Automoderation and spam protect
+	// End: Cleantalk. Spam protect
 ]]></action>
 			</edit>
 		</open>
@@ -797,7 +797,7 @@ if (!$submit && !$preview && !$refresh)
 				<find><![CDATA[		// Now delete the posts, topics and forums are automatically resync'ed
 		delete_posts('post_id', $post_ids);
 ]]></find>
-				<action type="before-add"><![CDATA[		// Begin: Automoderation and spam protect
+				<action type="before-add"><![CDATA[		// Begin: Cleantalk. Spam protect
 		if ($config['ct_enable'])
 		{
             if (!class_exists('Cleantalk'))
@@ -840,7 +840,7 @@ if (!$submit && !$preview && !$refresh)
                 set_config('ct_server_changed', time());
             }
         }
-		// End: Automoderation and spam protect
+		// End: Cleantalk. Spam protect
 ]]></action>
 			</edit>
 		</open>
@@ -853,7 +853,7 @@ if (!$submit && !$preview && !$refresh)
 				WHERE ' . $db->sql_in_set('post_id', $post_approve_sql);
 			$db->sql_query($sql);
 ]]></find>
-				<action type="after-add"><![CDATA[			// Begin: Automoderation and spam protect
+				<action type="after-add"><![CDATA[			// Begin: Cleantalk. Spam protect
             if ($config['ct_enable'])
             {
                 if (!class_exists('Cleantalk'))
@@ -902,7 +902,7 @@ if (!$submit && !$preview && !$refresh)
                     }
                 }
             }
-			// End: Automoderation and spam protect
+			// End: Cleantalk. Spam protect
 ]]></action>
 			</edit>
 			<edit>
@@ -915,7 +915,7 @@ if (!$submit && !$preview && !$refresh)
 				$topic_replies_real[$post_data['topic_id']] = $post_data['topic_replies_real'];
 			}
 		}]]></find>
-				<action type="after-add"><![CDATA[		// Begin : Automoderation and spam protect
+				<action type="after-add"><![CDATA[		// Begin : Cleantalk. Spam protect
 		if ($config['ct_enable'])
 		{
 			if (!class_exists('Cleantalk'))
@@ -946,7 +946,7 @@ if (!$submit && !$preview && !$refresh)
 				}
 			}
 		}
-		// End: Automoderation and spam protect
+		// End: Cleantalk. Spam protect
 ]]></action>
 			</edit>
 		</open>
@@ -958,7 +958,7 @@ if (!$submit && !$preview && !$refresh)
 				}
 			}
 ]]></find>
-				<action type="after-add"><![CDATA[			// Begin: Automoderation and spam protect 
+				<action type="after-add"><![CDATA[			// Begin: Cleantalk. Spam protect 
 			if (!sizeof($error) && $config['ct_newuser'] && $config['ct_enable'])
 			{
 		        $user->add_lang('mods/info_acp_cleantalk');
@@ -1020,7 +1020,7 @@ if (!$submit && !$preview && !$refresh)
                     add_log('user', null, sprintf($user->lang['CT_USER_DENY'], $data['username'], $data['email']) . ' ' . strip_tags($ct_result->comment));
                 }
 			}
-			// End: Automoderation and spam protect
+			// End: Cleantalk. Spam protect
 ]]></action>
 			</edit>
 			<edit>
@@ -1040,12 +1040,12 @@ if (!$submit && !$preview && !$refresh)
 					'user_inactive_time'	=> $user_inactive_time,
 				);
 ]]></find>
-				<action type="after-add"><![CDATA[				// Begin: Automoderation and spam protect
+				<action type="after-add"><![CDATA[				// Begin: Cleantalk. Spam protect
 				if (isset($ct_result->id))
 				{
                     $user_row['ct_request_id'] = $ct_result->id;
 				}
-				// End: Automoderation and spam protect
+				// End: Cleantalk. Spam protect
 ]]></action>
 			</edit>
 			<edit>
@@ -1054,27 +1054,27 @@ if (!$submit && !$preview && !$refresh)
                                         $email_template = 'user_welcome';
                                 }
 ]]></find>
-				<action type="after-add"><![CDATA[                // Begin : Automoderation and spam protect
+				<action type="after-add"><![CDATA[                // Begin : Cleantalk. Spam protect
                 if (isset($ct_result->allow) && $ct_result->allow == 1 && isset($user->lang['CT_SIGNUP_APPROVED'])) 
                 {
                     // Comment for visitor about automatically approvement
                     $message .= '<br /><br />' . $user->lang['CT_SIGNUP_APPROVED'];  
                 }
-                // End: Automoderation and spam protect
+                // End: Cleantalk. Spam protect
 
 ]]></action>
 			</edit>
 			<edit>
 				<find><![CDATA[							$messenger->send($row['user_notify_type']);
 ]]></find>
-				<action type="before-add"><![CDATA[							// Begin: Automoderation and spam protect
+				<action type="before-add"><![CDATA[							// Begin: Cleantalk. Spam protect
 							if (isset($ct_activation_admin))
 							{
 								$messenger->assign_vars(array(
 									'EMAIL_SIG'			=> $ct_activation_comment
 								));
 							}
-							// End: Automoderation and spam protect
+							// End: Cleantalk. Spam protect
 ]]></action>
 			</edit>
 			<edit>
@@ -1083,13 +1083,13 @@ if (!$submit && !$preview && !$refresh)
 			'change_lang'	=> 0,
 		);
 ]]></find>
-				<action type="before-add"><![CDATA[		// Begin: Automoderation and spam protect
+				<action type="before-add"><![CDATA[		// Begin: Cleantalk. Spam protect
         if (!function_exists('ct_set_submit_time'))
         {
 		    include($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
         }
         ct_set_submit_time();
-		// End: Automoderation and spam protect
+		// End: Cleantalk. Spam protect
 ]]></action>
 			</edit>
 		</open>
