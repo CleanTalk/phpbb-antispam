@@ -41,7 +41,9 @@ function cleantalk_hook()
 				$template->_rootref['S_FORM_TOKEN'] . 
 				'<input type="hidden" id="' . $field_id . '" name="ct_checkjs" value="' . $ct_checkjs_def . '">
 				<script type="text/javascript">// <![CDATA[
-                    document.getElementById("' . $field_id . '").value = document.getElementById("' . $field_id . '").value.replace("' . $ct_checkjs_def .  '", "' . $ct_checkjs_key . '");  
+                    if(document.getElementById("' . $field_id . '").value == 0) {
+                          document.getElementById("' . $field_id . '").value = document.getElementById("' . $field_id . '").value.replace("' . $ct_checkjs_def .  '", "' . $ct_checkjs_key . '");
+                    } 
 				// ]]></script>
 				');
 	}

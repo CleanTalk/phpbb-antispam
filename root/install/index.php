@@ -42,7 +42,7 @@ $versions = array(
 	// Version 2.9.4
 	'2.9.4'	=> array(
 		'config_add' => array(
-            array('ct_server_url', 'http://moderate.cleantalk.ru'),
+            array('ct_server_url', 'http://moderate.cleantalk.org'),
             array('ct_auth_key', ''),
             array('ct_enable', 1),
             array('ct_newuser', 1),
@@ -52,16 +52,16 @@ $versions = array(
             array('ct_url_prefix', 'http://'),
             array('ct_work_url', ''),
 		),
-        'table_column_add' => array(
-            array(USERS_TABLE,  'ct_request_id', array('CHAR:32', '', 'null')),
-        ),
+//        'table_column_add' => array(
+//            array(USERS_TABLE,  'ct_request_id', array('CHAR:32', '', 'null')),
+//        ),
 	),
 
     // Version 3.3.4
     '3.3.4' => array(
-	'table_column_add' => array(
-		array(POSTS_TABLE, 'ct_request_id', array('CHAR:32', '', 'null')),
-		),
+//	'table_column_add' => array(
+//		array(POSTS_TABLE, 'ct_request_id', array('CHAR:32', '', 'null')),
+//		),
 	),
     '3.4.6' => array(
 	'config_add' => array(
@@ -124,6 +124,12 @@ $versions = array(
 		    ),
     ),
 	'3.76' => array(
+	   	// no changes ... purge caches anyways
+		 'cache_purge' => array(
+				 'auth'
+		    ),
+    ),
+	'4.1' => array(
 	   	// no changes ... purge caches anyways
 		 'cache_purge' => array(
 				 'auth'

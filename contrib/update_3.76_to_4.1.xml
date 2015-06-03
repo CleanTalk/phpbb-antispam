@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml-stylesheet type="text/xsl" href="modx.prosilver.en.xsl"?>
+<!--NOTICE: Please open this file in your web browser. If presented with a security warning, you may safely tell it to allow the blocked content.-->
+<!--For security purposes, please check: http://www.phpbb.com/mods/ for the latest version of this MOD.\nAlthough MODs are checked before being allowed in the MODs Database there is no guarantee that there are no security problems within the MOD.\nNo support will be given for MODs not found within the MODs Database which can be found at http://www.phpbb.com/mods/-->
+<mod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://www.phpbb.com/mods/xml/modx-1.2.6.xsd">
+	<header>
+		<meta name="generator" content="MODX file generated with PP MODX Creator by tumba25 (online version)"/>
+		<license><![CDATA[http://opensource.org/licenses/gpl-license.php GNU General Public License v2]]></license>
+		<title lang="en"><![CDATA[Cleantalk. Spam protect update from 3.76 to 4.1]]></title>
+		<description lang="en"><![CDATA[This MOD use several tests to stop spam bots at the board. For example,
+
+1. Blacklists checks by Email, IP in lists with several thousands records,
+2. JavaScript availability,
+3. Registration and post submit time,
+4. Timezone test by user IP.
+
+Guests and New users posts MOD tests for relevance. MOD compare with first post in topic and previous posts. If the relevance is good enough it will be automatically published at the topic. Not relevant post moves to moderation queue.
+
+All features ot the MOD:
+1. Stop spam bots registrations.
+2. Not using CAPTCHA.
+3. Allow guests posting on the forum without CAPTCHA.
+4. Auto publication relevant posts.
+
+MOD is a client application for spam protection service cleantalk.org. You should register at the service and get an Access key before using the MOD.]]></description>
+		<author-group>
+			<author>
+				<realname><![CDATA[Denis Shagimuratov]]></realname>
+				<username><![CDATA[shagimuratov]]></username>
+				<homepage><![CDATA[http://cleantalk.org]]></homepage>
+				<email><![CDATA[shagimuratov@cleantalk.org]]></email>
+			</author>
+		</author-group>
+		<mod-version>4.1</mod-version>
+		<installation>
+			<level>easy</level>
+			<time>300</time>
+			<target-version>3.0.12</target-version>
+		</installation>
+		<link-group>
+			<link type="parent" href="../install.xml" lang="en">4.1</link>
+		</link-group>
+	</header>
+	<action-group>
+		<sql><![CDATA[ALTER TABLE {POSTS_TABLE} DROP ct_request_id;
+ALTER TABLE {USERS_TABLE} DROP ct_request_id;]]></sql>
+		<copy>
+			<file from="root/includes/cleantalk.class.php" to="includes/cleantalk.class.php"/>
+			<file from="root/includes/cleantalk.php" to="includes/cleantalk.php"/>
+		</copy>
+		<open src="posting.php">
+			<edit>
+				<remove><![CDATA[			if ($ct_result->allow == 0)
+			{
+				if (isset($ct_result->comment))
+				{
+					$message_parser->message = $message_parser->message . "<br /><br />" . $ct_result->comment;
+				}
+			}
+]]></remove>
+			</edit>
+			<edit>
+				<remove><![CDATA[            // Begin : Cleantalk. Spam protect
+            if (isset($ct_result->id))
+            {
+                $sql = 'UPDATE ' . POSTS_TABLE . '
+                            SET ct_request_id = \'' . $db->sql_escape($ct_result->id) . '\'
+                            WHERE post_id = ' . $db->sql_escape($data['post_id']);
+                $db->sql_query($sql);
+            }
+            // End: Cleantalk. Spam protect]]></remove>
+			</edit>
+			<edit>
+				<remove><![CDATA[            // Begin: Cleantalk. Spam protect
+            $sql = 'SELECT ct_request_id
+			FROM ' . POSTS_TABLE . '
+			WHERE post_id = ' . (int) $post_id;
+
+            $result	= $db->sql_query($sql);
+            $row = $db->sql_fetchrow($result);
+            $ct_request_id = $row['ct_request_id'];
+
+            if (!empty($ct_request_id))
+            {
+                if (!class_exists('Cleantalk'))
+                {
+                    include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+                }
+                if (!function_exists('ct_error_mail'))
+                {
+                    include($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
+                }
+				$ct					 = new Cleantalk();
+				$ct->work_url		 = $config['ct_work_url'];
+				$ct->server_url		 = $config['ct_server_url'];
+				$ct->server_ttl		 = $config['ct_server_ttl'];
+				$ct->server_changed	 = $config['ct_server_changed'];
+
+				$ct_request				 = new CleantalkRequest();
+				$ct_request->auth_key	 = $config['ct_auth_key'];
+				$ct_request->feedback	 = $ct_request_id . ':0';
+
+				$ct_result = $ct->sendFeedback($ct_request);
+				if ($ct->server_change)
+				{
+					set_config('ct_work_url', $ct->work_url);
+					set_config('ct_server_ttl', $ct->server_ttl);
+					set_config('ct_server_changed', time());
+				}
+
+				if ($ct_result->errno > 0)
+				{
+					ct_error_mail($ct_result->errstr);
+				}
+			}
+			// End: Cleantalk. Spam protect
+]]></remove>
+			</edit>
+		</open>
+		<open src="includes/functions_user.php">
+			<edit>
+				<remove><![CDATA[    // Begin: Cleantalk. Spam protect
+	if ($config['ct_enable'] && (isset($user_row['ct_request_id']) && $user_row['ct_request_id'] !== ''))
+	{
+		$ct_request_id = $user_row['ct_request_id'];
+
+		if (!class_exists('Cleantalk'))
+		{
+			include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+		}
+		$ct	= new Cleantalk();
+		$ct->work_url = $config['ct_work_url'];
+		$ct->server_url	= $config['ct_server_url'];
+		$ct->server_ttl	= $config['ct_server_ttl'];
+		$ct->server_changed	= $config['ct_server_changed'];
+
+		$ct_request	= new CleantalkRequest();
+		$ct_request->feedback = $ct_request_id . ':0';
+		$ct_request->auth_key = $config['ct_auth_key'];
+
+		$ct_feedback['moderate'][] =
+				array(
+					'msg_hash' => $ct_request_id,
+					'is_allow' => 0 // Post allowed
+		);
+
+		$ct_result = $ct->sendFeedback($ct_request);
+		if ($ct->server_change)
+		{
+			set_config('ct_work_url', $ct->work_url);
+			set_config('ct_server_ttl', $ct->server_ttl);
+			set_config('ct_server_changed', time());
+		}
+
+		if ($ct_result->errno > 0)
+		{
+            if (!function_exists('ct_error_mail'))
+            {
+                include($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
+            }
+			ct_error_mail($ct_result->errstr);
+		}
+	}
+	// End: Cleantalk. Spam protect
+]]></remove>
+			</edit>
+		</open>
+		<open src="includes/mcp/mcp_main.php">
+			<edit>
+				<remove><![CDATA[		// Begin: Cleantalk. Spam protect
+		if ($config['ct_enable'])
+		{
+            if (!class_exists('Cleantalk'))
+            {
+                include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+            }
+            $ct = new Cleantalk();
+            $ct->work_url = $config['ct_work_url'];
+            $ct->server_url = $config['ct_server_url'];
+            $ct->server_ttl = $config['ct_server_ttl'];
+            $ct->server_changed = $config['ct_server_changed'];
+
+            $ct_request = new CleantalkRequest();
+            $ct_feedback_moderate = null;
+
+            $ct_post_ids = implode(',', $post_ids);
+            $sql = 'SELECT ct_request_id
+                FROM ' . POSTS_TABLE . '
+                WHERE ' . $db->sql_in_set('post_id', $ct_post_ids);
+
+
+            $result	 = $db->sql_query($sql);
+            while ($row	= $db->sql_fetchrow($result))
+            {
+                if (!empty($row['ct_request_id']))
+                {
+                    $ct_feedback_moderate .= $row['ct_request_id'] . ':0;';
+                }
+            }
+
+            $ct_request->feedback = $ct_feedback_moderate;
+            $ct_request->auth_key = $config['ct_auth_key'];
+
+            $ct_result = $ct->sendFeedback($ct_request);
+
+            if ($ct->server_change)
+            {
+                set_config('ct_work_url', $ct->work_url);
+                set_config('ct_server_ttl', $ct->server_ttl);
+                set_config('ct_server_changed', time());
+            }
+        }
+		// End: Cleantalk. Spam protect]]></remove>
+			</edit>
+		</open>
+		<open src="includes/mcp/mcp_queue.php">
+			<edit>
+				<remove><![CDATA[			// Begin: Cleantalk. Spam protect
+            if ($config['ct_enable'])
+            {
+                if (!class_exists('Cleantalk'))
+                {
+                    require($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+                }
+                $ct	= new Cleantalk();
+                $ct->work_url = $config['ct_work_url'];
+                $ct->server_url	= $config['ct_server_url'];
+                $ct->server_ttl	= $config['ct_server_ttl'];
+                $ct->server_changed	= $config['ct_server_changed'];
+
+                $ct_request	= new CleantalkRequest();
+                $ct_feedback_moderate = null;
+
+                foreach ($post_info as $post_id => $post_data)
+                {
+                    $ct_request_id = $ct->getCleantalkCommentHash($post_data['post_text']);
+                    if (isset($ct_request_id))
+                    {
+                        $ct_feedback_moderate = $ct_request_id . ':1;';
+
+                        $ct_post_text = $ct->delCleantalkComment($post_data['post_text']);
+                        $ct_post_text = preg_replace("/\[color\=\#FF1000\:[a-z0-9]+\](\S+)\[\/color\:[a-z0-9]+\]/iu", '$1', $ct_post_text);
+                        if ($ct_post_text != $post_data['post_text'])
+                        {
+                            $sql = 'UPDATE ' . POSTS_TABLE . "
+                                SET post_text = '" . $db->sql_escape($ct_post_text) . "'
+                                WHERE post_id = " . (int) $post_id;
+                            $db->sql_query($sql);
+                        }
+                    }
+                }
+                if (isset($ct_feedback_moderate) && $config['ct_enable'])
+                {
+                    $ct_request->feedback = $ct_feedback_moderate;
+                    $ct_request->auth_key = $config['ct_auth_key'];
+
+                    $ct_result = $ct->sendFeedback($ct_request);
+
+                    if ($ct->server_change)
+                    {
+                        set_config('ct_work_url', $ct->work_url);
+                        set_config('ct_server_ttl', $ct->server_ttl);
+                        set_config('ct_server_changed', time());
+                    }
+                }
+            }
+			// End: Cleantalk. Spam protect
+]]></remove>
+			</edit>
+			<edit>
+				<remove><![CDATA[		// Begin : Cleantalk. Spam protect
+		if ($config['ct_enable'])
+		{
+			if (!class_exists('Cleantalk'))
+			{
+				include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+			}
+			$ct = new Cleantalk();
+			$ct->work_url = $config['ct_work_url'];
+			$ct->server_url = $config['ct_server_url'];
+			$ct->server_ttl	= $config['ct_server_ttl'];
+			$ct->server_changed = $config['ct_server_changed'];
+
+			foreach ($post_info as $post_id => $post_data)
+			{
+				$ct_request = new CleantalkRequest();
+				$ct_request_id = $ct->getCleantalkCommentHash($post_data['post_text']);
+
+				$ct_request->feedback = $ct_request_id . ':0';
+				$ct_request->auth_key = $config['ct_auth_key'];
+
+				$ct_result = $ct->sendFeedback($ct_request);
+
+				if ($ct->server_change)
+				{
+					set_config('ct_work_url', $ct->work_url);
+					set_config('ct_server_ttl', $ct->server_ttl);
+					set_config('ct_server_changed', time());
+				}
+			}
+		}
+		// End: Cleantalk. Spam protect
+]]></remove>
+			</edit>
+		</open>
+		<open src="includes/ucp/ucp_register.php">
+			<edit>
+				<remove><![CDATA[				// Begin: Cleantalk. Spam protect
+				if (isset($ct_result->id))
+				{
+                    $user_row['ct_request_id'] = $ct_result->id;
+				}
+				// End: Cleantalk. Spam protect]]></remove>
+			</edit>
+		</open>
+		<php-installer><![CDATA[install/index.php]]></php-installer>
+		<diy-instructions lang="en"><![CDATA[1. Purge cache.
+2. Remove PHPBB_ROOT/install dir.
+3. Enter Authorization key at,
+ACP -> CLEANTALK -> Settings -> Cleantalk. Spam protect
+4. Enable New users check at the same place.
+5. Enable moderation for selected forums,
+ACP -> Forums -> Manage forums -> FORUM_NAME -> Cleantalk. Spam protect
+6. Register a new user to check registration proccess.
+7. Post a message to forum where have enabled Cleantalk.]]></diy-instructions>
+	</action-group>
+</mod>
