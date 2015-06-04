@@ -56,11 +56,6 @@
  * @link        http://pear.php.net/pepr/pepr-proposal-show.php?id=198
  */
 
-if (!defined('IN_PHPBB'))
-{
-	exit;
-}
-
 /**
  * Marker constant for Services_JSON::decode(), used to flag stack state
  */
