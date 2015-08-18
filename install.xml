@@ -29,7 +29,7 @@ The MOD requires PHP5.]]></description>
 		<installation>
 			<level>easy</level>
 			<time>300</time>
-			<target-version>3.0.12</target-version>
+			<target-version>3.0.14</target-version>
 		</installation>
 		<history>
 			<entry>
