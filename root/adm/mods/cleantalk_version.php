@@ -25,7 +25,7 @@ class cleantalk_version
 			'author'	=> 'CleanTalk',
 			'title'		=> 'Cleantalk. Spam protect',
 			'tag'		=> 'phpbb_cleantalk',
-			'version'	=> '4.1',
+			'version'	=> '4.2',
 			'file'		=> array('cleantalk.org', 'updatecheck', 'phpbb_cleantalk.php'),
 		);
 	}
