@@ -635,6 +635,15 @@ if (!$submit && !$preview && !$refresh)
 				ct_error_mail($ct_result->errstr);
 			}
 			
+			if ($ct_result->errno > 0 && get_ct_checkjs() == 1)
+			{
+				$ct_result->allow = 1;
+			}
+			else if ($ct_result->errno > 0 && get_ct_checkjs() != 1)
+			{
+				$ct_result->allow = 0;
+			}
+			
 			if ($ct_result->allow == 0 && isset($ct_result->stop_queue) && $ct_result->stop_queue == 1)
 			{
 				add_log('user', null, $ct_result->comment);
