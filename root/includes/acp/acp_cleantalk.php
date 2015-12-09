@@ -56,6 +56,8 @@ class acp_cleantalk
 
                         'ct_moderate_guests'            => array('lang' => 'CT_MODERATE_GUESTS',            'validate' => 'bool',   'type' => 'radio:yes_no', 'explain' => true),
                         'ct_moderate_newly_registered'            => array('lang' => 'CT_MODERATE_NEWLY_REGISTERED',            'validate' => 'bool',   'type' => 'radio:yes_no', 'explain' => true),
+                        
+                        'ct_show_link'            => array('lang' => 'CT_SHOW_LINK',            'validate' => 'bool',   'type' => 'radio:yes_no', 'explain' => true),
 
                         'ct_auth_key'           => array('lang' => 'CT_AUTH_KEY',           'validate' => 'string', 'type' => 'text:40:60', 'explain' => true),
 
