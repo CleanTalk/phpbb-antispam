@@ -501,7 +501,7 @@ if (!$submit && !$preview && !$refresh)
 		
         if (!class_exists('Cleantalk'))
 		{
-			include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+			include_once($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
 		}
         if (!function_exists('ct_error_mail'))
         {
@@ -725,7 +725,7 @@ if (!$submit && !$preview && !$refresh)
                 
                 if (!class_exists('Cleantalk'))
                 {
-                    include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+                    include_once($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
                 }
                 if (!function_exists('ct_error_mail'))
                 {
