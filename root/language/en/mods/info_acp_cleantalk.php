@@ -48,6 +48,9 @@ $lang = array_merge($lang, array(
 	'CT_NEWUSER'                            => 'Test registration',
 	'CT_NEWUSER_EXPLAIN'                    => 'Failed the test will be given a refusal to register with a statement of reasons.',
 	'CT_SUCCESSFULLY_INSTALLED'             => 'CleanTalk spam protection successfully installed!',
+	'CT_SHOW_LINK' 		=> 'Tell others about CleanTalk',
+	'CT_SHOW_LINK_EXPLAIN' 		=> 'Checking this box places a small link under the comment form that lets others know what anti-spam tool protects your site.',
+
 ));
 
 $lang = array_merge($lang, array(

@@ -6,7 +6,7 @@
 	<header>
 		<meta name="generator" content="MODX file generated with PP MODX Creator by tumba25 (online version)"/>
 		<license><![CDATA[http://opensource.org/licenses/gpl-license.php GNU General Public License v2]]></license>
-		<title lang="en"><![CDATA[Cleantalk. Spam protect v.4.2]]></title>
+		<title lang="en"><![CDATA[Cleantalk. Spam protect v.4.3]]></title>
 		<description lang="en"><![CDATA[1. Stops spam bots signups.
 2. Stops spam bots posts.
 3. Allow guests posting on the forum without CAPTCHA.
@@ -25,7 +25,7 @@ The MOD requires PHP5.]]></description>
 				<email><![CDATA[welcome@cleantalk.org]]></email>
 			</author>
 		</author-group>
-		<mod-version>4.2</mod-version>
+		<mod-version>4.3</mod-version>
 		<installation>
 			<level>easy</level>
 			<time>300</time>
@@ -430,6 +430,15 @@ The MOD requires PHP5.]]></description>
 					<change><![CDATA[Fixed JavaScript error]]></change>
 				</changelog>
 			</entry>
+			<entry>
+				<date>2015-12-10</date>
+				<rev-version>4.3</rev-version>
+				<changelog lang="en">
+					<change><![CDATA[Latest base class]]></change>
+					<change><![CDATA[Improved JavaScript protection]]></change>
+					<change><![CDATA[Added "Tell others about CleanTalk" option]]></change>
+				</changelog>
+			</entry>
 		</history>
 		<link-group>
 			<link type="language" href="contrib/ru.xml" lang="en">Russian language</link>
@@ -632,16 +641,16 @@ if (!$submit && !$preview && !$refresh)
 				
 			if ($ct_result->errno > 0)
 			{
+				if($ct_request->js_on==1)
+				{
+					$ct_result->allow == 1;
+				}
+				else
+				{
+					$ct_result->allow == 0;
+					$ct_result->comment='Forbidden. Please, enable Javascript.';
+				}
 				ct_error_mail($ct_result->errstr);
-			}
-			
-			if ($ct_result->errno > 0 && get_ct_checkjs() == 1)
-			{
-				$ct_result->allow = 1;
-			}
-			else if ($ct_result->errno > 0 && get_ct_checkjs() != 1)
-			{
-				$ct_result->allow = 0;
 			}
 			
 			if ($ct_result->allow == 0 && isset($ct_result->stop_queue) && $ct_result->stop_queue == 1)
@@ -672,7 +681,16 @@ if (!$submit && !$preview && !$refresh)
 			}
 			if (isset($ct_result) && $ct_result->errno > 0)
             {
-				$data['force_approved_state'] = false;
+				//$data['force_approved_state'] = false;
+				if($ct_request->js_on==1)
+				{
+					$ct_result->allow == 1;
+				}
+				else
+				{
+					$ct_result->allow == 0;
+					$ct_result->comment='Forbidden. Please, enable Javascript.';
+				}
             }
 			// End: Cleantalk. Spam protect]]></action>
 			</edit>
@@ -752,6 +770,15 @@ if (!$submit && !$preview && !$refresh)
                     
                     if ($ct_result->errno > 0)
                     {
+                    	if($ct_request->js_on==1)
+						{
+							$ct_result->allow == 1;
+						}
+						else
+						{
+							$ct_result->allow == 0;
+							$ct_result->comment='Forbidden. Please, enable Javascript.';
+						}
                         ct_error_mail($ct_result->errstr);
                     }
                     

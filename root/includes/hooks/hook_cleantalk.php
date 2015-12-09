@@ -32,6 +32,12 @@ function cleantalk_hook()
 	/*
 		JavaScript test's HTML code	
 	*/
+	if(isset($config['ct_enable']) && $config['ct_enable'])
+	{
+		$credit=$template->_rootref['CREDIT_LINE'];
+		$credit.="<br><div style='width:100%;text-align:center;'><a href='https://cleantalk.org/phpbb-anti-spam-mod'>phpBB spam</a> blocked by CleanTalk.</div>";
+		$template->assign_var('CREDIT_LINE',$credit);
+	}
 	if (!defined('ADMIN_START') && !defined('IN_INSTALL') && defined('HEADER_INC') && !empty($template->_rootref['S_FORM_TOKEN']) && $config['ct_enable'])
 	{
 		$ct_checkjs_def = 0;
