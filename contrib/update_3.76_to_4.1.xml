@@ -84,11 +84,11 @@ ALTER TABLE {USERS_TABLE} DROP ct_request_id;]]></sql>
             {
                 if (!class_exists('Cleantalk'))
                 {
-                    include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+                    include_once($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
                 }
                 if (!function_exists('ct_error_mail'))
                 {
-                    include($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
+                    include_once($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
                 }
 				$ct					 = new Cleantalk();
 				$ct->work_url		 = $config['ct_work_url'];
@@ -126,7 +126,7 @@ ALTER TABLE {USERS_TABLE} DROP ct_request_id;]]></sql>
 
 		if (!class_exists('Cleantalk'))
 		{
-			include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+			include_once($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
 		}
 		$ct	= new Cleantalk();
 		$ct->work_url = $config['ct_work_url'];
@@ -172,7 +172,7 @@ ALTER TABLE {USERS_TABLE} DROP ct_request_id;]]></sql>
 		{
             if (!class_exists('Cleantalk'))
             {
-                include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+                include_once($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
             }
             $ct = new Cleantalk();
             $ct->work_url = $config['ct_work_url'];
@@ -220,7 +220,7 @@ ALTER TABLE {USERS_TABLE} DROP ct_request_id;]]></sql>
             {
                 if (!class_exists('Cleantalk'))
                 {
-                    require($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+                    require_once($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
                 }
                 $ct	= new Cleantalk();
                 $ct->work_url = $config['ct_work_url'];
@@ -273,7 +273,7 @@ ALTER TABLE {USERS_TABLE} DROP ct_request_id;]]></sql>
 		{
 			if (!class_exists('Cleantalk'))
 			{
-				include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+				include_once($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
 			}
 			$ct = new Cleantalk();
 			$ct->work_url = $config['ct_work_url'];
