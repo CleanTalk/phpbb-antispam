@@ -45,7 +45,7 @@ function cleantalk_hook()
 		$url='https://moderate.cleantalk.org/api2.0';
 		if(!function_exists('sendRawRequest'))
 		{
-			require_once('/../cleantalk.class.php');
+			require_once(realpath(dirname(__FILE__).'/../cleantalk.class.php'));
 		}
 		$result=sendRawRequest($url, $request, true);
 	}
