@@ -437,6 +437,7 @@ The MOD requires PHP5.]]></description>
 					<change><![CDATA[Latest base class]]></change>
 					<change><![CDATA[Improved JavaScript protection]]></change>
 					<change><![CDATA[Added "Tell others about CleanTalk" option]]></change>
+					<change><![CDATA[Added "Debug" option]]></change>
 				</changelog>
 			</entry>
 		</history>
@@ -665,6 +666,16 @@ if (!$submit && !$preview && !$refresh)
                 
 				$message_parser->parse($post_data['enable_bbcode'], ($config['allow_post_links']) ? $post_data['enable_urls'] : false, $post_data['enable_smilies'], $img_status, $flash_status, $quote_status, $config['allow_post_links']);
 			}
+            if ($config['ct_debug'])
+            {
+            	if (file_exists('debug_log.txt'))
+            		$fp = fopen('debug_log.txt', 'a+');
+            	else $fp = fopen('debug_log.txt', 'w');
+            	$debug_str = "---------------------".PHP_EOL.PHP_EOL."SERVER_INFO:".PHP_EOL.PHP_EOL."IP - ".$ct->work_url.PHP_EOL."HOSTNAME - ".gethostbyaddr(substr($ct->work_url, strpos($ct->work_url, ":") + 3)).PHP_EOL."TIME - ".date("Y-m-d h:i:sa").PHP_EOL.PHP_EOL."CT_REQUEST:".PHP_EOL.PHP_EOL.print_r($ct_request,true).PHP_EOL.PHP_EOL."CT_RESULT:".PHP_EOL.PHP_EOL.print_r($ct_result,true).PHP_EOL.PHP_EOL."---------------------";
+				fwrite($fp, $debug_str);
+				fclose($fp);
+            }
+
 		}
 	}
 	// End: Cleantalk. Spam protect
@@ -788,6 +799,16 @@ if (!$submit && !$preview && !$refresh)
                     $error[] = $ct_result->comment;
                     add_log('user', null, sprintf($user->lang['CT_USER_DENY'], $data['username'], $data['email']) . ' ' . strip_tags($ct_result->comment));
                 }
+                if ($config['ct_debug'])
+                {
+                	if (file_exists('debug_log.txt'))
+                		$fp = fopen('debug_log.txt', 'a+');
+                	else $fp = fopen('debug_log.txt', 'w');
+                	$debug_str = "---------------------".PHP_EOL.PHP_EOL."SERVER_INFO:".PHP_EOL.PHP_EOL."IP - ".$ct->work_url.PHP_EOL."HOSTNAME - ".gethostbyaddr(substr($ct->work_url, strpos($ct->work_url, ":") + 3)).PHP_EOL."TIME - ".date("Y-m-d h:i:sa").PHP_EOL.PHP_EOL."CT_REQUEST:".PHP_EOL.PHP_EOL.print_r($ct_request,true).PHP_EOL.PHP_EOL."CT_RESULT:".PHP_EOL.PHP_EOL.print_r($ct_result,true).PHP_EOL.PHP_EOL."---------------------";
+					fwrite($fp, $debug_str);
+					fclose($fp);
+                }
+
 			}
 			// End: Cleantalk. Spam protect
 ]]></action>

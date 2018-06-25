@@ -60,6 +60,7 @@ class acp_cleantalk
                         'ct_show_link'            => array('lang' => 'CT_SHOW_LINK',            'validate' => 'bool',   'type' => 'radio:yes_no', 'explain' => true),
 
                         'ct_auth_key'           => array('lang' => 'CT_AUTH_KEY',           'validate' => 'string', 'type' => 'text:40:60', 'explain' => true),
+                        'ct_debug'              => array('lang' => 'CT_DEBUG',      'validate' => 'bool', 'type' => 'radio:yes_no', 'explain' => true),
 
                         'legend2'               => 'ACP_SUBMIT_CHANGES',
                     )
