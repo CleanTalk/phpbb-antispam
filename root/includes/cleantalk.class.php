@@ -737,7 +737,8 @@ class Cleantalk {
                         $server_host = $server['ip'];
                         $work_url = $server_host;
                     }
-                    $work_url = $url_prefix . $work_url; 
+                    $host = filter_var($work_url,FILTER_VALIDATE_IP) ? gethostbyaddr($work_url) : $work_url;
+                    $work_url = $url_prefix . $host; 
                     if (isset($url_suffix)) 
                         $work_url = $work_url . $url_suffix;
                     
@@ -1005,19 +1006,16 @@ class Cleantalk {
  * @return type
  */
 
-if(!function_exists('getAutoKey'))
+function getAutoKey($email, $host, $platform)
 {
-	function getAutoKey($email, $host, $platform)
-	{
-		$request=Array();
-		$request['method_name'] = 'get_api_key'; 
-		$request['email'] = $email;
-		$request['website'] = $host;
-		$request['platform'] = $platform;
-		$url='https://api.cleantalk.org';
-		$result=sendRawRequest($url,$request);
-		return $result;
-	}
+	$request=Array();
+	$request['method_name'] = 'get_api_key'; 
+	$request['email'] = $email;
+	$request['website'] = $host;
+	$request['platform'] = $platform;
+	$url='https://api.cleantalk.org';
+	$result=sendRawRequest($url,$request);
+	return $result;
 }
 
 /**

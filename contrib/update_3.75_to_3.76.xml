@@ -83,8 +83,8 @@ if (!$submit && !$preview && !$refresh)
 		
         if (!class_exists('Cleantalk'))
 		{
-			include_once($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
-			include_once($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
+			include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+			include($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
 		}
 
 		$moderate		 = 0; // Flag to start moderation
@@ -253,11 +253,11 @@ if (!$submit && !$preview && !$refresh)
 		
         if (!class_exists('Cleantalk'))
 		{
-			include_once($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+			include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
 		}
         if (!function_exists('ct_error_mail'))
         {
-            include_once($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
+            include($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
         }
 
 		$moderate = false; // Flag to start moderation
@@ -461,8 +461,8 @@ if (!$submit && !$preview && !$refresh)
 
 		if (!class_exists('Cleantalk'))
 		{
-			include_once($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
-			include_once($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+			include($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
+			include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
 		}
 		$ct					 = new Cleantalk();
 		$ct->work_url		 = $config['ct_work_url'];
@@ -510,7 +510,7 @@ if (!$submit && !$preview && !$refresh)
 		{
             if (!class_exists('Cleantalk'))
             {
-                include_once($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+                include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
             }
             $ct = new Cleantalk();
             $ct->work_url = $config['ct_work_url'];
@@ -559,8 +559,8 @@ if (!$submit && !$preview && !$refresh)
 
 			if (!class_exists('Cleantalk'))
 			{
-				require_once($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
-				require_once($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+				require($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
+				require($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
 			}
 			$ct					 = new Cleantalk();
 			$ct->work_url		 = $config['ct_work_url'];
@@ -614,7 +614,7 @@ if (!$submit && !$preview && !$refresh)
             {
                 if (!class_exists('Cleantalk'))
                 {
-                    require_once($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+                    require($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
                 }
                 $ct	= new Cleantalk();
                 $ct->work_url = $config['ct_work_url'];
@@ -666,8 +666,8 @@ if (!$submit && !$preview && !$refresh)
 		{
 			if (!class_exists('Cleantalk'))
 			{
-				include_once($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
-				include_once($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+				include($phpbb_root_path . 'includes/cleantalk.' . $phpEx);
+				include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
 			}
 			$ct					 = new Cleantalk();
 			$ct->work_url		 = $config['ct_work_url'];
@@ -704,7 +704,7 @@ if (!$submit && !$preview && !$refresh)
 		{
 			if (!class_exists('Cleantalk'))
 			{
-				include_once($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+				include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
 			}
 			$ct = new Cleantalk();
 			$ct->work_url = $config['ct_work_url'];

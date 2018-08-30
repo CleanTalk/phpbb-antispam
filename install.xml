@@ -25,7 +25,7 @@ The MOD requires PHP5.]]></description>
 				<email><![CDATA[welcome@cleantalk.org]]></email>
 			</author>
 		</author-group>
-		<mod-version>4.3</mod-version>
+		<mod-version>4.2</mod-version>
 		<installation>
 			<level>easy</level>
 			<time>300</time>
@@ -431,14 +431,12 @@ The MOD requires PHP5.]]></description>
 				</changelog>
 			</entry>
 			<entry>
-				<date>2015-12-10</date>
+				<date>2018-08-29</date>
 				<rev-version>4.3</rev-version>
 				<changelog lang="en">
-					<change><![CDATA[Latest base class]]></change>
-					<change><![CDATA[Improved JavaScript protection]]></change>
-					<change><![CDATA[Added "Tell others about CleanTalk" option]]></change>
+					<change><![CDATA[Bug fixes and other minor improvements]]></change>
 				</changelog>
-			</entry>
+			</entry>			
 		</history>
 		<link-group>
 			<link type="language" href="contrib/ru.xml" lang="en">Russian language</link>
@@ -495,13 +493,13 @@ if (!$submit && !$preview && !$refresh)
 	}
 ]]></find>
 				<action type="after-add"><![CDATA[	// Begin: Cleantalk. Spam protect
-	if ($config['ct_enable'] && ($mode == 'reply' || $mode == 'quote' || $mode == 'post') && !$preview && !sizeof($error))
+	if ($config['ct_enable'] && ($mode == 'reply' || $mode == 'quote' || $mode == 'post') && !$preview && !sizeof($error) && !$load)
 	{
         $username = utf8_normalize_nfc(request_var('username', ($user->data['is_registered']) ? $user->data['username'] : '', true));
 		
         if (!class_exists('Cleantalk'))
 		{
-			include_once($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+			include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
 		}
         if (!function_exists('ct_error_mail'))
         {
@@ -641,15 +639,6 @@ if (!$submit && !$preview && !$refresh)
 				
 			if ($ct_result->errno > 0)
 			{
-				if($ct_request->js_on==1)
-				{
-					$ct_result->allow == 1;
-				}
-				else
-				{
-					$ct_result->allow == 0;
-					$ct_result->comment='Forbidden. Please, enable Javascript.';
-				}
 				ct_error_mail($ct_result->errstr);
 			}
 			
@@ -681,16 +670,7 @@ if (!$submit && !$preview && !$refresh)
 			}
 			if (isset($ct_result) && $ct_result->errno > 0)
             {
-				//$data['force_approved_state'] = false;
-				if($ct_request->js_on==1)
-				{
-					$ct_result->allow == 1;
-				}
-				else
-				{
-					$ct_result->allow == 0;
-					$ct_result->comment='Forbidden. Please, enable Javascript.';
-				}
+				$data['force_approved_state'] = false;
             }
 			// End: Cleantalk. Spam protect]]></action>
 			</edit>
@@ -725,7 +705,7 @@ if (!$submit && !$preview && !$refresh)
                 
                 if (!class_exists('Cleantalk'))
                 {
-                    include_once($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
+                    include($phpbb_root_path . 'includes/cleantalk.class.' . $phpEx);
                 }
                 if (!function_exists('ct_error_mail'))
                 {
@@ -770,15 +750,6 @@ if (!$submit && !$preview && !$refresh)
                     
                     if ($ct_result->errno > 0)
                     {
-                    	if($ct_request->js_on==1)
-						{
-							$ct_result->allow == 1;
-						}
-						else
-						{
-							$ct_result->allow == 0;
-							$ct_result->comment='Forbidden. Please, enable Javascript.';
-						}
                         ct_error_mail($ct_result->errstr);
                     }
                     

@@ -32,29 +32,6 @@ function cleantalk_hook()
 	/*
 		JavaScript test's HTML code	
 	*/
-	if(@isset($_POST['config']['ct_auth_key']))
-	{
-		$request=Array();
-		$request['method_name'] = 'check_message'; 
-		$request['auth_key'] = $_POST['config']['ct_auth_key'];
-		$request['sender_email'] = 'good@cleantalk.org';
-		$request['sender_nickname'] = 'CleanTalk';
-		$request['message'] = 'This message is a test to check the connection to the CleanTalk servers. ';
-		$request['agent'] = 'ct-phpbb-' . preg_replace("/(\d)\.(\w+)/", "$1$2", $config['ct_version']);
-		
-		$url='https://moderate.cleantalk.org/api2.0';
-		if(!function_exists('sendRawRequest'))
-		{
-			require_once(realpath(dirname(__FILE__).'/../cleantalk.class.php'));
-		}
-		$result=sendRawRequest($url, $request, true);
-	}
-	if(isset($config['ct_show_link']) && $config['ct_show_link'])
-	{
-		$credit=$template->_rootref['CREDIT_LINE'];
-		$credit.="<br><div style='width:100%;text-align:center;'><a href='https://cleantalk.org/phpbb-anti-spam-mod'>phpBB spam</a> blocked by CleanTalk.</div>";
-		$template->assign_var('CREDIT_LINE',$credit);
-	}
 	if (!defined('ADMIN_START') && !defined('IN_INSTALL') && defined('HEADER_INC') && !empty($template->_rootref['S_FORM_TOKEN']) && $config['ct_enable'])
 	{
 		$ct_checkjs_def = 0;

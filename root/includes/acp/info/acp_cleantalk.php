@@ -19,7 +19,7 @@ class acp_cleantalk_info
         return array(
             'filename'  => 'acp_cleantalk',
             'title'     => 'CT_TITLE',
-            'version'   => '4.3.0',
+            'version'   => '4.3',
             'modes'     => array(
                 'settings'      => array('title' => 'CT_TITLE', 'auth' => 'acl_a_board', 'cat' => array('CT_TITLE')),
             ),
