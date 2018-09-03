@@ -25,7 +25,7 @@ The MOD requires PHP5.]]></description>
 				<email><![CDATA[welcome@cleantalk.org]]></email>
 			</author>
 		</author-group>
-		<mod-version>4.2</mod-version>
+		<mod-version>4.3</mod-version>
 		<installation>
 			<level>easy</level>
 			<time>300</time>
