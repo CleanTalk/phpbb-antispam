@@ -27,7 +27,7 @@ MOD is a client application for spam protection service cleantalk.org. You shoul
 			<author>
 				<realname><![CDATA[Denis Shagimuratov]]></realname>
 				<username><![CDATA[shagimuratov]]></username>
-				<homepage><![CDATA[http://cleantalk.org]]></homepage>
+				<homepage><![CDATA[https://cleantalk.org]]></homepage>
 				<email><![CDATA[shagimuratov@cleantalk.org]]></email>
 			</author>
 		</author-group>
@@ -48,7 +48,7 @@ MOD is a client application for spam protection service cleantalk.org. You shoul
 		</copy>
 		<open src="posting.php">
 			<edit>
-				<find><![CDATA[// Begin: cleantalk.ru moderation
+				<find><![CDATA[// Begin: cleantalk.org moderation
 /*
 	Save post form load time
 */
@@ -59,7 +59,7 @@ if (!$submit && !$preview && !$refresh)
 		WHERE session_id = '" . $db->sql_escape($user->session_id) . "'";
 	$db->sql_query($sql);
 }
-// End: cleantalk.ru moderation]]></find>
+// End: cleantalk.org moderation]]></find>
 				<action type="replace-with"><![CDATA[// Begin: Cleantalk. Spam protect
 /*
 	Save post form load time
@@ -76,7 +76,7 @@ if (!$submit && !$preview && !$refresh)
 ]]></action>
 			</edit>
 			<edit>
-				<find><![CDATA[	// Begin: cleantalk.ru moderation
+				<find><![CDATA[	// Begin: cleantalk.org moderation
 	if ($config['ct_enable'] && ($mode == 'reply' || $mode == 'quote' || $mode == 'post') && !$preview && !sizeof($error))
 	{
         $username    = utf8_normalize_nfc(request_var('username', ($user->data['is_registered']) ? $user->data['username'] : '', true));
@@ -245,7 +245,7 @@ if (!$submit && !$preview && !$refresh)
 			}
 		}
 	}
-	// End: cleantalk.ru moderation ]]></find>
+	// End: cleantalk.org moderation ]]></find>
 				<action type="replace-with"><![CDATA[	// Begin: Cleantalk. Spam protect
 	if ($config['ct_enable'] && ($mode == 'reply' || $mode == 'quote' || $mode == 'post') && !$preview && !sizeof($error))
 	{
@@ -421,7 +421,7 @@ if (!$submit && !$preview && !$refresh)
 ]]></action>
 			</edit>
 			<edit>
-				<find><![CDATA[			// Begin : cleantalk.ru moderation
+				<find><![CDATA[			// Begin : cleantalk.org moderation
             if (isset($ct_result->id))
             {
                 $sql = 'UPDATE ' . POSTS_TABLE . '
@@ -429,7 +429,7 @@ if (!$submit && !$preview && !$refresh)
                             WHERE post_id=' . $db->sql_escape($data['post_id']);
                 $db->sql_query($sql);
             }
-            // End: cleantalk.ru moderation ]]></find>
+            // End: cleantalk.org moderation ]]></find>
 				<action type="replace-with"><![CDATA[            // Begin : Cleantalk. Spam protect
             if (isset($ct_result->id))
             {
@@ -444,19 +444,19 @@ if (!$submit && !$preview && !$refresh)
 		</open>
 		<open src="includes/functions_template.php">
 			<edit>
-				<remove><![CDATA[		// Begin : cleantalk.ru moderation
+				<remove><![CDATA[		// Begin : cleantalk.org moderation
 		if ($this->template->filename['body'] == 'memberlist_view.html')
 		{
 			$this->template->compiled_code['body'] = str_replace(
 					"'{ USE_PERMISSIONS }')); ?></a> ]<?php } ?>", '\'{ USE_PERMISSIONS }\')); ?></a> ]<?php } ?>
                                         <?php if ($this->_rootref[\'U_USER_DEL\']) {  ?> [ <a href="<?php echo (isset($this->_rootref[\'U_USER_DEL\'])) ? $this->_rootref[\'U_USER_DEL\'] : \'\'; ?>"><span style="color: red;"><?php echo ((isset($this->_rootref[\'L_DELETE_USER\'])) ? $this->_rootref[\'L_DELETE_USER\'] : ((isset($user->lang[\'DELETE_USER\'])) ? $user->lang[\'DELETE_USER\'] : \'{ DELETE_USER }\')); ?></span></a> ]<?php } ?>', $this->template->compiled_code['body']);
 		}
-		// End: cleantalk.ru moderation ]]></remove>
+		// End: cleantalk.org moderation ]]></remove>
 			</edit>
 		</open>
 		<open src="includes/mcp/mcp_main.php">
 			<edit>
-				<find><![CDATA[		// Begin: cleantalk.ru moderation
+				<find><![CDATA[		// Begin: cleantalk.org moderation
 		global $config;
 
 		if (!class_exists('Cleantalk'))
@@ -504,7 +504,7 @@ if (!$submit && !$preview && !$refresh)
 		{
 			ct_error_mail($ct_result->errstr);
 		}
-		// End: cleantalk.ru moderation ]]></find>
+		// End: cleantalk.org moderation ]]></find>
 				<action type="replace-with"><![CDATA[		// Begin: Cleantalk. Spam protect
 		if ($config['ct_enable'])
 		{
@@ -554,7 +554,7 @@ if (!$submit && !$preview && !$refresh)
 		</open>
 		<open src="includes/mcp/mcp_queue.php">
 			<edit>
-				<find><![CDATA[			// Begin: cleantalk.ru moderation
+				<find><![CDATA[			// Begin: cleantalk.org moderation
 			global $config;
 
 			if (!class_exists('Cleantalk'))
@@ -608,7 +608,7 @@ if (!$submit && !$preview && !$refresh)
 					ct_error_mail($ct_result->errstr);
 				}
 			}
-			// End: cleantalk.ru moderation]]></find>
+			// End: cleantalk.org moderation]]></find>
 				<action type="replace-with"><![CDATA[			// Begin: Cleantalk. Spam protect
             if ($config['ct_enable'])
             {
@@ -661,7 +661,7 @@ if (!$submit && !$preview && !$refresh)
 			// End: Cleantalk. Spam protect]]></action>
 			</edit>
 			<edit>
-				<find><![CDATA[		// Begin : cleantalk.ru moderation
+				<find><![CDATA[		// Begin : cleantalk.org moderation
 		if ($config['ct_enable'])
 		{
 			if (!class_exists('Cleantalk'))
@@ -698,7 +698,7 @@ if (!$submit && !$preview && !$refresh)
 				}
 			}
 		}
-		// End: cleantalk.ru moderation]]></find>
+		// End: cleantalk.org moderation]]></find>
 				<action type="replace-with"><![CDATA[		// Begin : Cleantalk. Spam protect
 		if ($config['ct_enable'])
 		{
@@ -735,12 +735,12 @@ if (!$submit && !$preview && !$refresh)
 		</open>
 		<open src="includes/ucp/ucp_register.php">
 			<edit>
-				<find><![CDATA[		// Begin: cleantalk.ru moderation
+				<find><![CDATA[		// Begin: cleantalk.org moderation
 		$sql = "UPDATE " . SESSIONS_TABLE . "
 			SET ct_submit_time = '" . time() . "'
 			WHERE session_id = '" . $db->sql_escape($user->session_id) . "'";
 		$db->sql_query($sql);
-		// End: cleantalk.ru moderation ]]></find>
+		// End: cleantalk.org moderation ]]></find>
 				<action type="replace-with"><![CDATA[		// Begin: Cleantalk. Spam protect
         if (!function_exists('ct_set_submit_time'))
         {

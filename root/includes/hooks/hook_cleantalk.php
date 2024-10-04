@@ -2,7 +2,7 @@
 /*
 
   CleanTalk. phpBB3 spam protection MOD 
-  Copyright (C) 2013 CleanTalk team team@cleantalk.ru
+  Copyright (C) 2013 CleanTalk team team@cleantalk.org
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License

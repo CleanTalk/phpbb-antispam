@@ -1,7 +1,7 @@
 <?php
 /**
 *
-* @author Denis Shagimuratov shagimuratov@cleantalk.ru
+* @author Denis Shagimuratov shagimuratov@cleantalk.org
 * @package acp
 * @version $Id$
 * @copyright (c) 2005 phpBB Group

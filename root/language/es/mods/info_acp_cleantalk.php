@@ -37,7 +37,7 @@ $lang = array_merge($lang, array(
     'ACP_CLEANTALK'                         => 'CleanTalk',
     'CT_ENABLE'                             => 'Conectar el módulo',
     'CT_AUTH_KEY'                       	=> 'Clave de acceso (Access key)',
-    'CT_AUTH_KEY_EXPLAIN'                   => 'Regístrese para obtener una nueva clave <a href="http://cleantalk.org/install/phpbb3?step=2" target="_blank">cleantalk.org</a>',
+    'CT_AUTH_KEY_EXPLAIN'                   => 'Regístrese para obtener una nueva clave <a href="https://cleantalk.org/install/phpbb3?step=2" target="_blank">cleantalk.org</a>',
 	'CT_SETTINGS'                           => 'Opciones',
     'CT_TITLE'                              => 'CleanTalk. Protección contra el spam',
     'CT_TITLE_EXPLAIN'                      => 'Aquí usted puede configurar las opciones generales del mod CleanTalk',
@@ -56,11 +56,11 @@ $lang = array_merge($lang, array(
 	'CT_CONFIRM_DELETE_USER'	=> '¿Eliminar al usuario y todos sus mensajes?',
 	'CT_RETURN_MEMBERLIST'		=> '<a href="%s">Volver a la lista de los usuarios</a>',
 	'CT_CLOSE_INFO'				=> 'Close this notification',
-	'CLEANTALK_INFO'			=> '<a href="http://cleantalk.org/phpbb3" target="_blank">Spam protection for phpBB</a>',
+	'CLEANTALK_INFO'			=> '<a href="https://cleantalk.org/phpbb3" target="_blank">Spam protection for phpBB</a>',
 ));
 
 $lang = array_merge($lang, array(
-	'CT_PRIVACY_POLICY'			=> '<br />Con objeto de proteger el Foro contra el spam, sus correos electrónicos, apodo, dirección IP y texto del mensaje pueden ser enviados a los servidores de la protección contra el spam <a href="http://cleantalk.org" title="CleanTalk" target="_blank">CleanTalk</a>.',
+	'CT_PRIVACY_POLICY'			=> '<br />Con objeto de proteger el Foro contra el spam, sus correos electrónicos, apodo, dirección IP y texto del mensaje pueden ser enviados a los servidores de la protección contra el spam <a href="https://cleantalk.org" title="CleanTalk" target="_blank">CleanTalk</a>.',
 	'CT_AUTO_APPROVED'			=> 'Post approved. Anti-spam by CleanTalk.',
 	'CT_SIGNUP_APPROVED'			=> 'Account approved. Anti-spam by CleanTalk.',
 ));
@@ -69,7 +69,7 @@ $lang = array_merge($lang, array(
 	'CT_INFO'			    => 'Información',
     'CT_MOD_VERSION'            => 'Versión',
     'CT_MOD_HOMEPAGE'         => 'Página-web',
-    'CT_MOD_HOMEPAGE_DATA'         => '<a href="http://cleantalk.org" target="_blank">cleantalk.org</a>',
+    'CT_MOD_HOMEPAGE_DATA'         => '<a href="https://cleantalk.org" target="_blank">cleantalk.org</a>',
 ));
 
 ?>

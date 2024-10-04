@@ -21,7 +21,7 @@ The MOD requires PHP5.]]></description>
 			<author>
 				<realname><![CDATA[Denis Shagimuratov]]></realname>
 				<username><![CDATA[shagimuratov]]></username>
-				<homepage><![CDATA[http://cleantalk.org]]></homepage>
+				<homepage><![CDATA[https://cleantalk.org]]></homepage>
 				<email><![CDATA[welcome@cleantalk.org]]></email>
 			</author>
 		</author-group>
@@ -107,7 +107,7 @@ The MOD requires PHP5.]]></description>
 				<date>2011-07-09</date>
 				<rev-version>2.2.1</rev-version>
 				<changelog lang="en">
-					<change><![CDATA[Added language selection for messages from cleantalk.ru]]></change>
+					<change><![CDATA[Added language selection for messages from cleantalk.org]]></change>
 					<change><![CDATA[Added options to enable/disable moderation for Guests, New users and Registered users]]></change>
 				</changelog>
 			</entry>
@@ -151,7 +151,7 @@ The MOD requires PHP5.]]></description>
 				<date>2011-11-12</date>
 				<rev-version>2.6.1</rev-version>
 				<changelog lang="en">
-					<change><![CDATA[Added feedback messages to cleantalk.ru servers after approve/disapprove posts.]]></change>
+					<change><![CDATA[Added feedback messages to cleantalk.org servers after approve/disapprove posts.]]></change>
 					<change><![CDATA[Added logging after deny user registration and block posts by black lists.]]></change>
 					<change><![CDATA[Denied registration with UTC-12.]]></change>
 				</changelog>
@@ -199,8 +199,8 @@ The MOD requires PHP5.]]></description>
 				<date>2012-03-23</date>
 				<rev-version>2.9.4</rev-version>
 				<changelog lang="en">
-					<change><![CDATA[Added auto switch between servers in pool moderate.cleantalk.ru for all XML RPC functions.]]></change>
-					<change><![CDATA[Added feedback to moderate.cleantalk.ru after user delete.]]></change>
+					<change><![CDATA[Added auto switch between servers in pool moderate.cleantalk.org for all XML RPC functions.]]></change>
+					<change><![CDATA[Added feedback to moderate.cleantalk.org after user delete.]]></change>
 					<change><![CDATA[Added one click "Delete user" button to user profile.]]></change>
 					<change><![CDATA[Added color highlight for stop words.]]></change>
 					<change><![CDATA[Optimized a moderation code.]]></change>

@@ -37,7 +37,7 @@ $lang = array_merge($lang, array(
     'ACP_CLEANTALK'                     => 'CleanTalk',
     'CT_ENABLE'                         => 'Modul einschalten',
     'CT_AUTH_KEY'                       => 'Access key',
-    'CT_AUTH_KEY_EXPLAIN'               => 'Um einen neuen Access key zu erhalten, <a href="http://cleantalk.org/install/phpbb3?step=2" target="_blank">registrieren</a> Sie sich bitte auf der Webseite.',
+    'CT_AUTH_KEY_EXPLAIN'               => 'Um einen neuen Access key zu erhalten, <a href="https://cleantalk.org/install/phpbb3?step=2" target="_blank">registrieren</a> Sie sich bitte auf der Webseite.',
 	'CT_SETTINGS'                       => 'Einstellungen',
     'CT_TITLE'                          => 'CleanTalk. Spamschutz',
     'CT_TITLE_EXPLAIN'                  => 'Hier können Sie die Basiseinstellungen des CleanTalk-Systems steuern.',
@@ -58,7 +58,7 @@ $lang = array_merge($lang, array(
 ));
 
 $lang = array_merge($lang, array(
-	'CT_PRIVACY_POLICY'			=> '<br />Zum Spamschutz des Forums kann Ihre E-Mail-Adresse, Ihr Benutzername, Ihre IP-Adresse und der Inhalt Ihrer Beiträge auf den Server des Spamschutz-Services <a href="http://cleantalk.ru" title="CleanTalk" target="_blank">CleanTalk</a> übergeben werden.',
+	'CT_PRIVACY_POLICY'			=> '<br />Zum Spamschutz des Forums kann Ihre E-Mail-Adresse, Ihr Benutzername, Ihre IP-Adresse und der Inhalt Ihrer Beiträge auf den Server des Spamschutz-Services <a href="https://cleantalk.org" title="CleanTalk" target="_blank">CleanTalk</a> übergeben werden.',
 	'CT_AUTO_APPROVED'			=> 'Post approved. Anti-spam by CleanTalk.',
 	'CT_SIGNUP_APPROVED'			=> 'Account approved. Anti-spam by CleanTalk.',
 ));
@@ -67,7 +67,7 @@ $lang = array_merge($lang, array(
 	'CT_INFO'			    => 'Information',
     'CT_MOD_VERSION'            => 'Version',
     'CT_MOD_HOMEPAGE'         => 'Webseite',
-    'CT_MOD_HOMEPAGE_DATA'         => '<a href="http://cleantalk.org" target="_blank">cleantalk.org</a>',
+    'CT_MOD_HOMEPAGE_DATA'         => '<a href="https://cleantalk.org" target="_blank">cleantalk.org</a>',
 ));
 
 ?>
