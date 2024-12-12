@@ -42,7 +42,7 @@ $versions = array(
 	// Version 2.9.4
 	'2.9.4'	=> array(
 		'config_add' => array(
-            array('ct_server_url', 'http://moderate.cleantalk.org'),
+            array('ct_server_url', 'https://moderate.cleantalk.org'),
             array('ct_auth_key', ''),
             array('ct_enable', 1),
             array('ct_newuser', 1),
